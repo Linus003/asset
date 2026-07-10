@@ -21,9 +21,20 @@ interface ColumnMapping {
 }
 
 // Fuzzy string matching for column detection
+function normalizeHeader(value: string): string {
+  return value
+    .replace(/^\uFEFF/, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[#/\\_-]+/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
 function calculateSimilarity(str1: string, str2: string): number {
-  const s1 = str1.toLowerCase().trim();
-  const s2 = str2.toLowerCase().trim();
+  const s1 = normalizeHeader(str1);
+  const s2 = normalizeHeader(str2);
   
   if (s1 === s2) return 1;
   
@@ -72,12 +83,12 @@ function getLevenshteinDistance(s1: string, s2: string): number {
 export function autoDetectColumns(headers: string[]): ColumnMapping {
   const fieldPatterns: Record<string, string[]> = {
     logNumber: ['log #', 'log no', 'log number', 'log', '#'],
-    assetTag: ['asset tag', 'asset number', 'asset id', 'tag', 'assetid', 'asset_id'],
-    serialNo: ['serial no', 'serial number', 'serial', 'serialno', 's/n'],
-    model: ['model', 'make model', 'equipment model'],
-    assignedTo: ['check out to', 'checked out to', 'assignee', 'assigned to', 'custodian', 'user'],
-    name: ['asset name', 'equipment name', 'name', 'description', 'title'],
-    category: ['category', 'type', 'asset type', 'class'],
+    assetTag: ['asset tag', 'asset number', 'asset no', 'asset id', 'tag', 'assetid', 'asset_id', 'property tag', 'inventory tag'],
+    serialNo: ['serial no', 'serial number', 'serial', 'serialno', 's/n', 'sn', 'service tag'],
+    model: ['model', 'make model', 'equipment model', 'model no', 'model number'],
+    assignedTo: ['check out to', 'checkout to', 'checked out to', 'checkedout to', 'check-out to', 'assignee', 'assigned to', 'issued to', 'custodian', 'user', 'employee'],
+    name: ['asset name', 'equipment name', 'item name', 'name', 'description', 'title'],
+    category: ['category', 'type', 'asset type', 'asset category', 'class'],
     description: ['description', 'details', 'notes', 'remarks'],
     location: ['location', 'department', 'dept', 'building', 'room', 'office'],
     status: ['status', 'state', 'condition'],
@@ -97,7 +108,7 @@ export function autoDetectColumns(headers: string[]): ColumnMapping {
       
       const similarity = Math.max(...patterns.map(p => calculateSimilarity(headers[i], p)));
       
-      if (similarity > 0.85) {
+      if (similarity >= 0.85) {
         mapping[field as keyof ColumnMapping] = headers[i];
         used.add(i);
         break;
@@ -138,7 +149,7 @@ export function categorizeAsset(name: string, description: string): AssetCategor
 
 // Parse CSV/Excel data
 export function parseCSVData(csvText: string): string[][] {
-  const delimiter = csvText.includes('\t') && !csvText.includes(',') ? '\t' : ',';
+  const delimiter = detectDelimiter(csvText);
   const lines = csvText.trim().split(/\r?\n/);
   const rows: string[][] = [];
   
@@ -180,6 +191,65 @@ export function parseCSVData(csvText: string): string[][] {
   return rows;
 }
 
+function detectDelimiter(csvText: string): string {
+  const candidates = [',', '\t', ';'];
+  const sampleLines = csvText.split(/\r?\n/).filter((line) => line.trim()).slice(0, 10);
+
+  return candidates.reduce((bestDelimiter, delimiter) => {
+    const bestScore = sampleLines.reduce((score, line) => score + splitLineForScore(line, bestDelimiter).length, 0);
+    const candidateScore = sampleLines.reduce((score, line) => score + splitLineForScore(line, delimiter).length, 0);
+    return candidateScore > bestScore ? delimiter : bestDelimiter;
+  }, ',');
+}
+
+function splitLineForScore(line: string, delimiter: string): string[] {
+  const cells: string[] = [];
+  let insideQuotes = false;
+  let currentCell = '';
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (insideQuotes && nextChar === '"') {
+        currentCell += '"';
+        i++;
+      } else {
+        insideQuotes = !insideQuotes;
+      }
+    } else if (char === delimiter && !insideQuotes) {
+      cells.push(currentCell);
+      currentCell = '';
+    } else {
+      currentCell += char;
+    }
+  }
+
+  cells.push(currentCell);
+  return cells;
+}
+
+function countDetectedColumns(mapping: ColumnMapping): number {
+  return Object.values(mapping).filter(Boolean).length;
+}
+
+function findHeaderRow(rows: string[][]): { headerIndex: number; headers: string[]; mapping: ColumnMapping } {
+  let bestMatch = { headerIndex: 0, headers: rows[0] || [], mapping: autoDetectColumns(rows[0] || []), score: 0 };
+  bestMatch.score = countDetectedColumns(bestMatch.mapping);
+
+  rows.slice(0, 10).forEach((row, index) => {
+    const mapping = autoDetectColumns(row);
+    const score = countDetectedColumns(mapping);
+
+    if (score > bestMatch.score) {
+      bestMatch = { headerIndex: index, headers: row, mapping, score };
+    }
+  });
+
+  return bestMatch;
+}
+
 interface ImportResult {
   assets: Asset[];
   errors: ImportError[];
@@ -194,19 +264,26 @@ export function importAssets(csvText: string, existingAssets: Asset[]): ImportRe
     return { assets: [], errors: [{ row: 1, field: 'all', value: '', reason: 'No data rows found' }], duplicates: 0 };
   }
 
-  const headers = rows[0];
-  const mapping = autoDetectColumns(headers);
+  const { headerIndex, headers, mapping } = findHeaderRow(rows);
   const assets: Asset[] = [];
   const errors: ImportError[] = [];
   const existingTags = new Set(existingAssets.map(a => a.assetTag).filter(Boolean));
   const existingSerials = new Set(existingAssets.map(a => a.serialNo).filter(Boolean));
   let duplicateCount = 0;
 
-  const dataRows = rows.slice(1);
+  if (!mapping.name && !mapping.assetTag && !mapping.serialNo && !mapping.model) {
+    return {
+      assets: [],
+      errors: [{ row: headerIndex + 1, field: 'headers', value: headers.join(', '), reason: 'Could not detect asset columns. Please include headers like Asset Name, Serial No, Model, Category, and Check Out To.' }],
+      duplicates: 0,
+    };
+  }
+
+  const dataRows = rows.slice(headerIndex + 1);
 
   for (let rowIndex = 0; rowIndex < dataRows.length; rowIndex++) {
     const row = dataRows[rowIndex];
-    const rowNum = rowIndex + 2; // Row number in spreadsheet (1-indexed, accounting for header)
+    const rowNum = headerIndex + rowIndex + 2; // Row number in spreadsheet (1-indexed, accounting for header)
     
     try {
       const rowData: Record<string, string> = {};
