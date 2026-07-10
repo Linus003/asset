@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
-import { initializeStore, searchAssets, getAssets, getAssetById, updateAsset } from '@/lib/store';
+import { deleteAsset, getAssets, initializeStore, searchAssets } from '@/lib/store';
 import { Asset } from '@/lib/types';
 import { Plus, Edit2, Trash2, ChevronDown, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
@@ -40,8 +40,14 @@ export default function AssetsPage() {
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this asset?')) {
-      setAssets(assets.filter((a) => a.id !== id));
-      setFilteredAssets(filteredAssets.filter((a) => a.id !== id));
+      deleteAsset(id);
+      const allAssets = getAssets();
+      setAssets(allAssets);
+      setFilteredAssets(searchAssets(searchQuery, {
+        category: selectedCategory || undefined,
+        location: selectedLocation || undefined,
+        status: selectedStatus || undefined,
+      }));
     }
   };
 

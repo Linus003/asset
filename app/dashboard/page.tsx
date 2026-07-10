@@ -39,7 +39,7 @@ export default function DashboardPage() {
               label="Active Assets"
               value={metrics.activeAssets}
               icon={<TrendingUp className="w-6 h-6" />}
-              trend={`${((metrics.activeAssets / metrics.totalAssets) * 100).toFixed(1)}% of total`}
+              trend={`${metrics.totalAssets ? ((metrics.activeAssets / metrics.totalAssets) * 100).toFixed(1) : '0.0'}% of total`}
               color="from-blue-500 to-blue-600"
             />
             <MetricCard
@@ -70,7 +70,7 @@ export default function DashboardPage() {
                       <div className="w-32 h-2 bg-secondary rounded-full overflow-hidden">
                         <div
                           className="h-full bg-primary rounded-full"
-                          style={{ width: `${(count / metrics.totalAssets) * 100}%` }}
+                          style={{ width: `${metrics.totalAssets ? (count / metrics.totalAssets) * 100 : 0}%` }}
                         />
                       </div>
                       <span className="text-foreground font-semibold w-8 text-right">{count}</span>
