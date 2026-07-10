@@ -14,7 +14,6 @@ export default function ImportPage() {
   const [csvText, setCsvText] = useState('');
   const [fileName, setFileName] = useState('');
   const [importResult, setImportResult] = useState<any>(null);
-  const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
 
   useEffect(() => {
     initializeStore();
@@ -34,8 +33,7 @@ export default function ImportPage() {
       const rows = parseCSVData(text);
       if (rows.length > 0) {
         const headers = rows[0];
-        const detected = autoDetectColumns(headers);
-        setColumnMapping(detected);
+        autoDetectColumns(headers);
       }
 
       setStep('preview');

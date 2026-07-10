@@ -2,15 +2,27 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Upload, Settings, Home, Package, Wrench, LogOut, User } from 'lucide-react';
-import { getCurrentUser, switchUser, getUsers } from '@/lib/store';
-import { useState } from 'react';
+import { Upload, Settings, Home, Package, Wrench, User } from 'lucide-react';
+import { getCurrentUser, getUsers, initializeStore, subscribeToStoreChanges, switchUser } from '@/lib/store';
+import { useEffect, useState } from 'react';
+import { User as UserType } from '@/lib/types';
 
 export function Sidebar() {
   const pathname = usePathname();
-  const currentUser = getCurrentUser();
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+  const [users, setUsers] = useState<UserType[]>([]);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const users = getUsers();
+
+  useEffect(() => {
+    initializeStore();
+    const refreshUserState = () => {
+      setCurrentUser(getCurrentUser());
+      setUsers(getUsers());
+    };
+
+    refreshUserState();
+    return subscribeToStoreChanges(refreshUserState);
+  }, []);
 
   const isActive = (href: string) => pathname === href;
 
@@ -102,6 +114,8 @@ export function Sidebar() {
                   key={user.id}
                   onClick={() => {
                     switchUser(user.role);
+                    setCurrentUser(getCurrentUser());
+                    setUsers(getUsers());
                     setShowUserMenu(false);
                   }}
                   className={`w-full text-left px-4 py-3 text-sm transition-colors ${

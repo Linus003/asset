@@ -2,7 +2,11 @@
 
 import { Asset, MaintenanceRecord, ImportHistory, AssetMovement, User, UserRole, DashboardMetrics } from './types';
 
-// In-memory data store
+const STORAGE_KEY = 'assethub-store-v1';
+const STORE_CHANGED_EVENT = 'assethub-store-changed';
+
+// Browser-persisted in-memory data store
+let initialized = false;
 let assets: Asset[] = [];
 let maintenanceRecords: MaintenanceRecord[] = [];
 let importHistories: ImportHistory[] = [];
@@ -10,8 +14,55 @@ let movements: AssetMovement[] = [];
 let currentUser: User | null = null;
 let users: User[] = [];
 
-// Initialize with demo data
+function persistStore() {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    assets,
+    maintenanceRecords,
+    importHistories,
+    movements,
+    currentUser,
+    users,
+  }));
+  window.dispatchEvent(new Event(STORE_CHANGED_EVENT));
+}
+
+export function subscribeToStoreChanges(callback: () => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  window.addEventListener(STORE_CHANGED_EVENT, callback);
+  window.addEventListener('storage', callback);
+
+  return () => {
+    window.removeEventListener(STORE_CHANGED_EVENT, callback);
+    window.removeEventListener('storage', callback);
+  };
+}
+
+// Initialize with persisted data when available, otherwise seed demo data once
 export function initializeStore() {
+  if (initialized) return;
+
+  if (typeof window !== 'undefined') {
+    const savedStore = window.localStorage.getItem(STORAGE_KEY);
+
+    if (savedStore) {
+      try {
+        const parsed = JSON.parse(savedStore);
+        assets = parsed.assets || [];
+        maintenanceRecords = parsed.maintenanceRecords || [];
+        importHistories = parsed.importHistories || [];
+        movements = parsed.movements || [];
+        users = parsed.users || [];
+        currentUser = parsed.currentUser || parsed.users?.[0] || null;
+        initialized = true;
+        return;
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }
   // Demo users
   users = [
     { id: '1', name: 'Admin User', email: 'admin@company.com', role: 'admin' },
@@ -106,6 +157,9 @@ export function initializeStore() {
       importedBy: 'admin@company.com',
     },
   ];
+
+  initialized = true;
+  persistStore();
 }
 
 // Asset operations
@@ -125,6 +179,7 @@ export function addAsset(asset: Omit<Asset, 'id' | 'lastModified' | 'createdBy'>
     createdBy: currentUser?.email || 'system',
   };
   assets.push(newAsset);
+  persistStore();
   return newAsset;
 }
 
@@ -133,6 +188,7 @@ export function updateAsset(id: string, updates: Partial<Asset>): Asset {
   if (!asset) throw new Error('Asset not found');
   
   Object.assign(asset, updates, { lastModified: new Date().toISOString() });
+  persistStore();
   return asset;
 }
 
@@ -140,6 +196,7 @@ export function deleteAsset(id: string): void {
   assets = assets.filter(a => a.id !== id);
   maintenanceRecords = maintenanceRecords.filter(m => m.assetId !== id);
   movements = movements.filter(m => m.assetId !== id);
+  persistStore();
 }
 
 // Maintenance operations
@@ -156,6 +213,7 @@ export function addMaintenanceRecord(record: Omit<MaintenanceRecord, 'id'>): Mai
     id: `maint-${Date.now()}`,
   };
   maintenanceRecords.push(newRecord);
+  persistStore();
   return newRecord;
 }
 
@@ -166,6 +224,7 @@ export function recordMovement(movement: Omit<AssetMovement, 'id'>): AssetMoveme
     id: `move-${Date.now()}`,
   };
   movements.push(newMovement);
+  persistStore();
   return newMovement;
 }
 
@@ -183,6 +242,7 @@ export function addImportHistory(history: Omit<ImportHistory, 'id'>): ImportHist
     id: `import-${Date.now()}`,
   };
   importHistories.push(newHistory);
+  persistStore();
   return newHistory;
 }
 
@@ -197,6 +257,7 @@ export function getCurrentUser(): User | null {
 
 export function setCurrentUser(user: User): void {
   currentUser = user;
+  persistStore();
 }
 
 export function getUsers(): User[] {
@@ -207,6 +268,7 @@ export function switchUser(role: UserRole): void {
   const user = users.find(u => u.role === role);
   if (user) {
     currentUser = user;
+    persistStore();
   }
 }
 
