@@ -3,6 +3,7 @@
 import { Asset, MaintenanceRecord, ImportHistory, AssetMovement, User, UserRole, DashboardMetrics } from './types';
 
 const STORAGE_KEY = 'kemu-inventory-store-v1';
+const STORE_API_URL = '/api/store';
 const STORE_CHANGED_EVENT = 'kemu-inventory-store-changed';
 
 // Browser-persisted in-memory data store
@@ -14,18 +15,67 @@ let movements: AssetMovement[] = [];
 let currentUser: User | null = null;
 let users: User[] = [];
 
-function persistStore() {
-  if (typeof window === 'undefined') return;
-
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+function getStoreSnapshot() {
+  return {
     assets,
     maintenanceRecords,
     importHistories,
     movements,
     currentUser,
     users,
-  }));
-  window.dispatchEvent(new Event(STORE_CHANGED_EVENT));
+  };
+}
+
+function applyStoreSnapshot(snapshot: Partial<ReturnType<typeof getStoreSnapshot>>) {
+  assets = snapshot.assets || [];
+  maintenanceRecords = snapshot.maintenanceRecords || [];
+  importHistories = snapshot.importHistories || [];
+  movements = snapshot.movements || [];
+  users = snapshot.users || users;
+  currentUser = snapshot.currentUser || users[0] || null;
+}
+
+function notifyStoreChanged() {
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(STORE_CHANGED_EVENT));
+}
+
+function persistStore() {
+  if (typeof window === 'undefined') return;
+
+  const snapshot = getStoreSnapshot();
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  notifyStoreChanged();
+
+  void fetch(STORE_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(snapshot),
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error('Could not save inventory data on the server.');
+      return response.json();
+    })
+    .then((serverSnapshot) => {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(serverSnapshot));
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
+async function hydrateFromServer() {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const response = await fetch(STORE_API_URL, { cache: 'no-store' });
+    if (!response.ok) throw new Error('Could not load shared inventory data.');
+    const serverSnapshot = await response.json();
+    applyStoreSnapshot(serverSnapshot);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(getStoreSnapshot()));
+    notifyStoreChanged();
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function subscribeToStoreChanges(callback: () => void): () => void {
@@ -50,13 +100,9 @@ export function initializeStore() {
     if (savedStore) {
       try {
         const parsed = JSON.parse(savedStore);
-        assets = parsed.assets || [];
-        maintenanceRecords = parsed.maintenanceRecords || [];
-        importHistories = parsed.importHistories || [];
-        movements = parsed.movements || [];
-        users = parsed.users || [];
-        currentUser = parsed.currentUser || parsed.users?.[0] || null;
+        applyStoreSnapshot(parsed);
         initialized = true;
+        void hydrateFromServer();
         return;
       } catch {
         window.localStorage.removeItem(STORAGE_KEY);
@@ -159,7 +205,7 @@ export function initializeStore() {
   ];
 
   initialized = true;
-  persistStore();
+  void hydrateFromServer();
 }
 
 // Asset operations
