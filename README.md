@@ -1,4 +1,4 @@
-# AssetHub - Inventory Management System
+# KeMU Inventory Management System - Inventory Management System
 
 A comprehensive asset tracking and inventory management system built with Next.js, featuring a smart import engine, real-time search, maintenance scheduling, and role-based access control.
 

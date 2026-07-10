@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
-import { deleteAsset, getAssets, initializeStore, searchAssets } from '@/lib/store';
+import { deleteAsset, deleteAssets, getAssets, initializeStore, searchAssets, subscribeToStoreChanges } from '@/lib/store';
 import { Asset } from '@/lib/types';
 import { Plus, Edit2, Trash2, ChevronDown, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
@@ -17,12 +17,17 @@ export default function AssetsPage() {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     initializeStore();
-    const allAssets = getAssets();
-    setAssets(allAssets);
-    setFilteredAssets(allAssets);
+    const refreshAssets = () => {
+      const allAssets = getAssets();
+      setAssets(allAssets);
+      setFilteredAssets(searchAssets(searchQuery, { category: selectedCategory || undefined, location: selectedLocation || undefined, status: selectedStatus || undefined }));
+    };
+    refreshAssets();
+    return subscribeToStoreChanges(refreshAssets);
   }, []);
 
   useEffect(() => {
@@ -75,6 +80,12 @@ export default function AssetsPage() {
                 Filters
               </button>
             </div>
+            <div className="flex gap-2">
+              {selectedIds.length > 0 && (
+                <button onClick={() => { if (confirm(`Delete ${selectedIds.length} selected assets?`)) { deleteAssets(selectedIds); setSelectedIds([]); } }} className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium">
+                  <Trash2 className="w-5 h-5" /> Delete selected ({selectedIds.length})
+                </button>
+              )}
             <Link
               href="/assets/new"
               className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors font-medium"
@@ -82,6 +93,7 @@ export default function AssetsPage() {
               <Plus className="w-5 h-5" />
               Add Asset
             </Link>
+            </div>
           </div>
 
           {/* Filter Panel */}
@@ -143,6 +155,7 @@ export default function AssetsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-secondary">
+                    <th className="text-left py-4 px-6 font-semibold text-foreground"><input type="checkbox" checked={filteredAssets.length > 0 && selectedIds.length === filteredAssets.length} onChange={(e) => setSelectedIds(e.target.checked ? filteredAssets.map((asset) => asset.id) : [])} /></th>
                     <th className="text-left py-4 px-6 font-semibold text-foreground">Asset Tag</th>
                     <th className="text-left py-4 px-6 font-semibold text-foreground">Name</th>
                     <th className="text-left py-4 px-6 font-semibold text-foreground">Category</th>
@@ -156,6 +169,7 @@ export default function AssetsPage() {
                   {filteredAssets.length > 0 ? (
                     filteredAssets.map((asset) => (
                       <tr key={asset.id} className="border-b border-border hover:bg-secondary/50 transition-colors">
+                        <td className="py-4 px-6"><input type="checkbox" checked={selectedIds.includes(asset.id)} onChange={(e) => setSelectedIds((ids) => e.target.checked ? [...ids, asset.id] : ids.filter((id) => id !== asset.id))} /></td>
                         <td className="py-4 px-6 font-mono text-primary font-semibold">{asset.assetTag}</td>
                         <td className="py-4 px-6 text-foreground">{asset.name}</td>
                         <td className="py-4 px-6">
@@ -204,7 +218,7 @@ export default function AssetsPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={7} className="py-12 text-center text-muted-foreground">
+                      <td colSpan={8} className="py-12 text-center text-muted-foreground">
                         No assets found matching your search criteria
                       </td>
                     </tr>

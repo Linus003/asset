@@ -2,8 +2,8 @@
 
 import { Asset, MaintenanceRecord, ImportHistory, AssetMovement, User, UserRole, DashboardMetrics } from './types';
 
-const STORAGE_KEY = 'assethub-store-v1';
-const STORE_CHANGED_EVENT = 'assethub-store-changed';
+const STORAGE_KEY = 'kemu-inventory-store-v1';
+const STORE_CHANGED_EVENT = 'kemu-inventory-store-changed';
 
 // Browser-persisted in-memory data store
 let initialized = false;
@@ -65,9 +65,9 @@ export function initializeStore() {
   }
   // Demo users
   users = [
-    { id: '1', name: 'Admin User', email: 'admin@company.com', role: 'admin' },
-    { id: '2', name: 'Staff Member', email: 'staff@company.com', role: 'staff' },
-    { id: '3', name: 'Viewer User', email: 'viewer@company.com', role: 'viewer' },
+    { id: '1', name: 'Admin User', email: 'admin@kemu.ac.ke', role: 'admin' },
+    { id: '2', name: 'Staff Member', email: 'staff@kemu.ac.ke', role: 'staff' },
+    { id: '3', name: 'Viewer User', email: 'viewer@kemu.ac.ke', role: 'viewer' },
   ];
 
   currentUser = users[0]; // Default to admin
@@ -76,18 +76,18 @@ export function initializeStore() {
   assets = [
     {
       id: 'asset-1',
-      assetTag: 'LAP-001',
-      name: 'MacBook Pro 16"',
+      assetTag: 'TRF20905QQ',
+      name: 'HP Pro 3400',
       category: 'electronics',
       description: 'Developer laptop with M3 Max chip',
-      location: 'Engineering Dept',
+      location: '15th Floor',
       status: 'active',
       purchaseDate: '2023-06-15',
       purchasePrice: 3500,
       supplier: 'Apple Inc',
       warranty: '2025-06-15',
       lastModified: new Date().toISOString(),
-      createdBy: 'admin@company.com',
+      createdBy: 'admin@kemu.ac.ke',
     },
     {
       id: 'asset-2',
@@ -95,19 +95,19 @@ export function initializeStore() {
       name: 'Standing Desk',
       category: 'furniture',
       description: 'Electric standing desk with dual motor',
-      location: 'Engineering Dept',
+      location: '15th Floor',
       status: 'active',
       purchaseDate: '2022-03-10',
       purchasePrice: 800,
       supplier: 'FlexiSpot',
       warranty: '2024-03-10',
       lastModified: new Date().toISOString(),
-      createdBy: 'admin@company.com',
+      createdBy: 'admin@kemu.ac.ke',
     },
     {
       id: 'asset-3',
-      assetTag: 'MON-001',
-      name: 'Dell UltraSharp 27"',
+      assetTag: 'CNC213P202',
+      name: 'HP LV2011 Monitor',
       category: 'electronics',
       description: '4K monitor for design work',
       location: 'Design Studio',
@@ -117,7 +117,7 @@ export function initializeStore() {
       supplier: 'Dell Technologies',
       warranty: '2025-01-20',
       lastModified: new Date().toISOString(),
-      createdBy: 'admin@company.com',
+      createdBy: 'admin@kemu.ac.ke',
     },
   ];
 
@@ -154,7 +154,7 @@ export function initializeStore() {
       rowsImported: 25,
       rowsSkipped: 2,
       errors: [],
-      importedBy: 'admin@company.com',
+      importedBy: 'admin@kemu.ac.ke',
     },
   ];
 
@@ -196,6 +196,20 @@ export function deleteAsset(id: string): void {
   assets = assets.filter(a => a.id !== id);
   maintenanceRecords = maintenanceRecords.filter(m => m.assetId !== id);
   movements = movements.filter(m => m.assetId !== id);
+  persistStore();
+}
+
+export function deleteAssets(ids: string[]): void {
+  const idSet = new Set(ids);
+  assets = assets.filter(a => !idSet.has(a.id));
+  maintenanceRecords = maintenanceRecords.filter(m => !idSet.has(m.assetId));
+  movements = movements.filter(m => !idSet.has(m.assetId));
+  persistStore();
+}
+
+export function deleteImportedFile(fileId: string): void {
+  deleteAssets(assets.filter(a => a.sourceFileId === fileId).map(a => a.id));
+  importHistories = importHistories.filter(h => h.id !== fileId && h.fileSignature !== fileId);
   persistStore();
 }
 

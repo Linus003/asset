@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
-import { initializeStore, getDashboardMetrics, getAssets } from '@/lib/store';
+import { initializeStore, getDashboardMetrics, subscribeToStoreChanges } from '@/lib/store';
 import { Package, AlertCircle, BarChart3, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
@@ -12,7 +12,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     initializeStore();
-    setMetrics(getDashboardMetrics());
+    const refreshMetrics = () => setMetrics(getDashboardMetrics());
+    refreshMetrics();
+    return subscribeToStoreChanges(refreshMetrics);
   }, []);
 
   return (
@@ -22,7 +24,7 @@ export default function DashboardPage() {
       <main className="flex-1 overflow-auto flex flex-col">
         <Header 
           title="Dashboard" 
-          description="Overview of your asset inventory and maintenance schedule"
+          description="Real-time KeMU asset and equipment inventory overview"
         />
 
         <div className="flex-1 p-6 space-y-6">

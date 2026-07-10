@@ -1,7 +1,13 @@
 import { Asset, AssetCategory, ImportError, ImportHistory } from './types';
 import { addAsset, addImportHistory, getCurrentUser } from './store';
 
+export const KEMU_TEMPLATE_HEADERS = ['Log #', 'Asset Name', 'Asset Tag', 'Serial No', 'Model', 'Category', 'Status', 'Check Out To', 'Location'];
+
 interface ColumnMapping {
+  logNumber?: string;
+  serialNo?: string;
+  model?: string;
+  assignedTo?: string;
   assetTag?: string;
   name?: string;
   category?: string;
@@ -65,8 +71,12 @@ function getLevenshteinDistance(s1: string, s2: string): number {
 // Detect columns automatically with fuzzy matching
 export function autoDetectColumns(headers: string[]): ColumnMapping {
   const fieldPatterns: Record<string, string[]> = {
+    logNumber: ['log #', 'log no', 'log number', 'log', '#'],
     assetTag: ['asset tag', 'asset number', 'asset id', 'tag', 'assetid', 'asset_id'],
-    name: ['name', 'asset name', 'description', 'title', 'model'],
+    serialNo: ['serial no', 'serial number', 'serial', 'serialno', 's/n'],
+    model: ['model', 'make model', 'equipment model'],
+    assignedTo: ['check out to', 'checked out to', 'assignee', 'assigned to', 'custodian', 'user'],
+    name: ['asset name', 'equipment name', 'name', 'description', 'title'],
     category: ['category', 'type', 'asset type', 'class'],
     description: ['description', 'details', 'notes', 'remarks'],
     location: ['location', 'department', 'dept', 'building', 'room', 'office'],
@@ -99,10 +109,18 @@ export function autoDetectColumns(headers: string[]): ColumnMapping {
 }
 
 // Auto-categorize assets
-function categorizeAsset(name: string, description: string): AssetCategory {
+export function categorizeAsset(name: string, description: string): AssetCategory {
   const text = `${name} ${description}`.toLowerCase();
   
-  if (/laptop|desktop|computer|monitor|keyboard|mouse|printer|scanner|phone|tablet/i.test(text)) {
+  if (/cpu|desktop|computer|pro 3|pro 34|pro 35|pro 31/i.test(text)) return 'cpu';
+  if (/monitor|display|screen/i.test(text)) return 'monitor';
+  if (/keyboard|pr1101u/i.test(text)) return 'keyboard';
+  if (/mouse|modguo/i.test(text)) return 'mouse';
+  if (/ip phone|phone|cisco phone|7940|7911/i.test(text)) return 'ip-phone';
+  if (/switch|cisco switch/i.test(text)) return 'switch';
+  if (/printer|scanner/i.test(text)) return 'printer';
+  if (/ups|battery backup/i.test(text)) return 'ups';
+  if (/laptop|desktop|computer|tablet|electronics/i.test(text)) {
     return 'electronics';
   }
   if (/desk|chair|table|shelf|cabinet|sofa|bench|rack/i.test(text)) {
@@ -120,7 +138,8 @@ function categorizeAsset(name: string, description: string): AssetCategory {
 
 // Parse CSV/Excel data
 export function parseCSVData(csvText: string): string[][] {
-  const lines = csvText.trim().split('\n');
+  const delimiter = csvText.includes('\t') && !csvText.includes(',') ? '\t' : ',';
+  const lines = csvText.trim().split(/\r?\n/);
   const rows: string[][] = [];
   
   let currentRow: string[] = [];
@@ -139,7 +158,7 @@ export function parseCSVData(csvText: string): string[][] {
         } else {
           insideQuotes = !insideQuotes;
         }
-      } else if (char === ',' && !insideQuotes) {
+      } else if (char === delimiter && !insideQuotes) {
         currentRow.push(currentCell.trim());
         currentCell = '';
       } else {
@@ -179,7 +198,8 @@ export function importAssets(csvText: string, existingAssets: Asset[]): ImportRe
   const mapping = autoDetectColumns(headers);
   const assets: Asset[] = [];
   const errors: ImportError[] = [];
-  const existingTags = new Set(existingAssets.map(a => a.assetTag));
+  const existingTags = new Set(existingAssets.map(a => a.assetTag).filter(Boolean));
+  const existingSerials = new Set(existingAssets.map(a => a.serialNo).filter(Boolean));
   let duplicateCount = 0;
 
   const dataRows = rows.slice(1);
@@ -195,14 +215,20 @@ export function importAssets(csvText: string, existingAssets: Asset[]): ImportRe
       });
 
       // Extract values using mapping
-      const assetTag = rowData[mapping.assetTag || ''] || `AUTO-${Date.now()}-${rowIndex}`;
-      const name = rowData[mapping.name || ''] || 'Unknown';
-      const description = rowData[mapping.description || ''] || '';
+      const logNumber = rowData[mapping.logNumber || ''] || String(rowIndex + 1);
+      const serialNo = rowData[mapping.serialNo || ''] || '';
+      const model = rowData[mapping.model || ''] || '';
+      const assignedTo = rowData[mapping.assignedTo || ''] || '';
+      const assetTag = rowData[mapping.assetTag || ''] || serialNo || `AUTO-${Date.now()}-${rowIndex}`;
+      const name = rowData[mapping.name || ''] || model || 'Unknown';
+      const description = rowData[mapping.description || ''] || [model, serialNo, assignedTo && `Checked out to ${assignedTo}`].filter(Boolean).join(' • ');
       const location = rowData[mapping.location || ''] || 'Unassigned';
       const purchaseDate = rowData[mapping.purchaseDate || ''] || new Date().toISOString().split('T')[0];
       const purchasePrice = parseFloat(rowData[mapping.purchasePrice || '0'] || '0') || 0;
-      const supplier = rowData[mapping.supplier || ''] || 'Unknown';
+      const supplier = rowData[mapping.supplier || ''] || '';
       const warranty = rowData[mapping.warranty || ''] || '';
+      const rawStatus = (rowData[mapping.status || ''] || 'Working').toLowerCase();
+      const status = rawStatus.includes('working') ? 'working' : rawStatus.includes('maintenance') ? 'maintenance' : rawStatus.includes('retired') ? 'retired' : rawStatus.includes('lost') ? 'lost' : 'active';
 
       // Validation
       if (!name || name.length === 0) {
@@ -216,12 +242,12 @@ export function importAssets(csvText: string, existingAssets: Asset[]): ImportRe
       }
 
       // Duplicate detection
-      if (existingTags.has(assetTag)) {
+      if ((assetTag && existingTags.has(assetTag)) || (serialNo && existingSerials.has(serialNo))) {
         errors.push({
           row: rowNum,
           field: 'assetTag',
           value: assetTag,
-          reason: 'Asset tag already exists',
+          reason: serialNo && existingSerials.has(serialNo) ? 'Serial number already exists' : 'Asset tag already exists',
         });
         duplicateCount++;
         continue;
@@ -230,11 +256,15 @@ export function importAssets(csvText: string, existingAssets: Asset[]): ImportRe
       const asset: Asset = {
         id: `asset-${Date.now()}-${rowIndex}`,
         assetTag,
+        serialNo,
+        model,
+        assignedTo,
+        logNumber,
         name,
-        category: categorizeAsset(name, description),
+        category: (rowData[mapping.category || ''] ? categorizeAsset(rowData[mapping.category || ''], `${name} ${description}`) : categorizeAsset(name, description)),
         description,
         location,
-        status: 'active',
+        status: status as Asset['status'],
         purchaseDate,
         purchasePrice,
         supplier,
@@ -245,6 +275,7 @@ export function importAssets(csvText: string, existingAssets: Asset[]): ImportRe
 
       assets.push(asset);
       existingTags.add(assetTag);
+      if (serialNo) existingSerials.add(serialNo);
     } catch (error) {
       errors.push({
         row: rowNum,

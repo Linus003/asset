@@ -1,23 +1,42 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
-import { initializeStore, getAssets, addAsset, addImportHistory } from '@/lib/store';
-import { importAssets, autoDetectColumns, parseCSVData } from '@/lib/import-engine';
-import { Upload, Check, AlertCircle, ChevronRight } from 'lucide-react';
+import { addAsset, addImportHistory, deleteImportedFile, getAssets, getImportHistory, initializeStore, subscribeToStoreChanges } from '@/lib/store';
+import { importAssets, KEMU_TEMPLATE_HEADERS, parseCSVData } from '@/lib/import-engine';
+import { Asset } from '@/lib/types';
+import { AlertCircle, Check, Edit2, FileSpreadsheet, Trash2, Upload } from 'lucide-react';
 
 type ImportStep = 'upload' | 'preview' | 'confirm' | 'complete';
+
+type ImportResult = ReturnType<typeof importAssets>;
+
+function signatureFor(name: string, text: string) {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
+  return `${name}:${text.length}:${hash}`;
+}
 
 export default function ImportPage() {
   const [step, setStep] = useState<ImportStep>('upload');
   const [csvText, setCsvText] = useState('');
   const [fileName, setFileName] = useState('');
-  const [importResult, setImportResult] = useState<any>(null);
+  const [fileSignature, setFileSignature] = useState('');
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
+  const [histories, setHistories] = useState(getImportHistory());
 
   useEffect(() => {
     initializeStore();
+    setHistories(getImportHistory());
+    return subscribeToStoreChanges(() => setHistories(getImportHistory()));
   }, []);
+
+  const duplicateFile = useMemo(
+    () => histories.find((history) => history.fileSignature === fileSignature),
+    [fileSignature, histories],
+  );
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -28,54 +47,61 @@ export default function ImportPage() {
       const text = event.target?.result as string;
       setCsvText(text);
       setFileName(file.name);
-      
-      // Auto-detect columns
-      const rows = parseCSVData(text);
-      if (rows.length > 0) {
-        const headers = rows[0];
-        autoDetectColumns(headers);
-      }
-
+      setFileSignature(signatureFor(file.name, text));
+      setImportResult(null);
       setStep('preview');
     };
     reader.readAsText(file);
   };
 
   const handleImport = () => {
-    const existingAssets = getAssets();
-    const result = importAssets(csvText, existingAssets);
+    const result = importAssets(csvText, getAssets());
     setImportResult(result);
     setStep('confirm');
   };
 
+  const updatePreviewAsset = (id: string, updates: Partial<Asset>) => {
+    setImportResult((current) => current ? {
+      ...current,
+      assets: current.assets.map((asset) => asset.id === id ? { ...asset, ...updates } : asset),
+    } : current);
+  };
+
   const handleConfirmImport = () => {
-    if (importResult?.assets) {
-      importResult.assets.forEach((asset: any) => {
-        addAsset({
-          assetTag: asset.assetTag,
-          name: asset.name,
-          category: asset.category,
-          description: asset.description,
-          location: asset.location,
-          status: asset.status,
-          purchaseDate: asset.purchaseDate,
-          purchasePrice: asset.purchasePrice,
-          supplier: asset.supplier,
-          warranty: asset.warranty,
-        });
-      });
+    if (!importResult?.assets.length || duplicateFile) return;
+    const sourceFileId = fileSignature;
 
-      addImportHistory({
-        fileName,
-        timestamp: new Date().toISOString(),
-        rowsImported: importResult.assets.length,
-        rowsSkipped: importResult.errors.length,
-        errors: importResult.errors,
-        importedBy: 'current-user',
+    importResult.assets.forEach((asset) => {
+      addAsset({
+        assetTag: asset.assetTag,
+        serialNo: asset.serialNo,
+        model: asset.model,
+        assignedTo: asset.assignedTo,
+        logNumber: asset.logNumber,
+        sourceFileId,
+        sourceFileName: fileName,
+        name: asset.name,
+        category: asset.category,
+        description: asset.description,
+        location: asset.location,
+        status: asset.status,
+        purchaseDate: asset.purchaseDate,
+        purchasePrice: asset.purchasePrice,
+        supplier: asset.supplier,
+        warranty: asset.warranty,
       });
+    });
 
-      setStep('complete');
-    }
+    addImportHistory({
+      fileName,
+      fileSignature,
+      timestamp: new Date().toISOString(),
+      rowsImported: importResult.assets.length,
+      rowsSkipped: importResult.errors.length,
+      errors: importResult.errors,
+      importedBy: 'current-user',
+    });
+    setStep('complete');
   };
 
   const rows = parseCSVData(csvText);
@@ -84,241 +110,86 @@ export default function ImportPage() {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-
       <main className="flex-1 overflow-auto flex flex-col">
-        <Header
-          title="Import Assets"
-          description="Bulk import assets from CSV or Excel files"
-        />
-
-        <div className="flex-1 p-6">
-          {/* Step Indicator */}
-          <div className="mb-8 flex items-center gap-4">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold ${
-              step !== 'upload' ? 'bg-primary text-primary-foreground' : 'bg-primary text-primary-foreground'
-            }`}>
-              <Check className="w-5 h-5" />
-            </div>
-            <ChevronRight className={`w-5 h-5 ${step === 'upload' ? 'text-muted-foreground' : 'text-primary'}`} />
-            <div className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold ${
-              step === 'preview' || step === 'confirm' || step === 'complete'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary text-muted-foreground'
-            }`}>
-              2
-            </div>
-            <ChevronRight className={`w-5 h-5 ${
-              step === 'confirm' || step === 'complete' ? 'text-primary' : 'text-muted-foreground'
-            }`} />
-            <div className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold ${
-              step === 'confirm' || step === 'complete'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary text-muted-foreground'
-            }`}>
-              3
-            </div>
-            <ChevronRight className={`w-5 h-5 ${
-              step === 'complete' ? 'text-primary' : 'text-muted-foreground'
-            }`} />
-            <div className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold ${
-              step === 'complete'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary text-muted-foreground'
-            }`}>
-              <Check className="w-5 h-5" />
-            </div>
+        <Header title="Import Assets & Equipment" description="Upload KeMU inventory logs using the approved spreadsheet layout" />
+        <div className="flex-1 p-6 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {['Upload file', 'Preview layout', 'Validate & edit', 'Complete'].map((label, index) => (
+              <div key={label} className={`rounded-lg border p-4 ${index <= ['upload','preview','confirm','complete'].indexOf(step) ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}>
+                <p className="text-sm font-semibold text-foreground">{index + 1}. {label}</p>
+              </div>
+            ))}
           </div>
 
-          {/* Upload Step */}
           {step === 'upload' && (
-            <div className="max-w-2xl space-y-6">
-              <div className="bg-card border-2 border-dashed border-border rounded-lg p-12 text-center hover:border-primary transition-colors cursor-pointer">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div className="xl:col-span-2 bg-card border-2 border-dashed border-border rounded-lg p-12 text-center hover:border-primary transition-colors">
                 <label htmlFor="file-upload" className="cursor-pointer">
                   <Upload className="w-12 h-12 text-primary mx-auto mb-4" />
-                  <p className="text-lg font-semibold text-foreground mb-2">Drop your CSV or Excel file here</p>
-                  <p className="text-muted-foreground mb-4">or click to browse</p>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    accept=".csv,.xlsx,.xls"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
+                  <p className="text-lg font-semibold text-foreground mb-2">Upload the KeMU asset log</p>
+                  <p className="text-muted-foreground mb-4">CSV, tab-delimited Excel exports, or pasted spreadsheet text</p>
+                  <input id="file-upload" type="file" accept=".csv,.tsv,.txt,.xls,.xlsx" onChange={handleFileUpload} className="hidden" />
                 </label>
               </div>
-
-              <div className="bg-secondary rounded-lg p-4 space-y-3">
-                <h4 className="font-semibold text-foreground flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-primary" />
-                  Supported Format
-                </h4>
-                <ul className="space-y-2 text-muted-foreground text-sm">
-                  <li>• CSV files with headers in first row</li>
-                  <li>• Excel files (.xlsx, .xls)</li>
-                  <li>• Common column names: Asset Tag, Name, Category, Location, etc.</li>
-                  <li>• System will automatically detect and match columns</li>
-                </ul>
+              <div className="bg-card border border-border rounded-lg p-6">
+                <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2"><FileSpreadsheet className="w-5 h-5 text-primary" />Required layout</h3>
+                <div className="grid grid-cols-1 gap-2 text-sm">
+                  {KEMU_TEMPLATE_HEADERS.map((header) => <span key={header} className="rounded bg-secondary px-3 py-2 text-foreground">{header}</span>)}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Preview Step */}
           {step === 'preview' && (
-            <div className="max-w-4xl space-y-6">
-              <div className="bg-secondary border border-border rounded-lg p-4">
-                <p className="text-foreground font-medium">File: <span className="text-primary">{fileName}</span></p>
-                <p className="text-muted-foreground text-sm">Found {rows.length - 1} data rows</p>
+            <div className="space-y-6">
+              <div className="bg-card border border-border rounded-lg p-4">
+                <p className="font-medium text-foreground">File: <span className="text-primary">{fileName}</span></p>
+                <p className="text-muted-foreground text-sm">Found {Math.max(rows.length - 1, 0)} data rows using the uploaded spreadsheet layout.</p>
+                {duplicateFile && <p className="mt-2 text-red-600 text-sm font-medium">Duplicate file detected: this file was already uploaded on {new Date(duplicateFile.timestamp).toLocaleString()}.</p>}
               </div>
-
-              <div className="bg-card border border-border rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-secondary border-b border-border">
-                        {rows[0].map((header, idx) => (
-                          <th key={idx} className="px-6 py-3 text-left font-semibold text-foreground">
-                            {header}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {previewRows.map((row, idx) => (
-                        <tr key={idx} className="border-b border-border hover:bg-secondary/50">
-                          {row.map((cell, cellIdx) => (
-                            <td key={cellIdx} className="px-6 py-3 text-foreground truncate">
-                              {cell}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              <div className="bg-card border border-border rounded-lg overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="bg-primary text-primary-foreground">{(rows[0] || KEMU_TEMPLATE_HEADERS).map((h, i) => <th key={i} className="px-4 py-3 text-left">{h}</th>)}</tr></thead>
+                  <tbody>{previewRows.map((row, i) => <tr key={i} className="border-b border-border">{row.map((cell, c) => <td key={c} className="px-4 py-3 text-foreground">{cell}</td>)}</tr>)}</tbody>
+                </table>
               </div>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => { setStep('upload'); setCsvText(''); }}
-                  className="px-6 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-lg transition-colors font-medium"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleImport}
-                  className="px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors font-medium ml-auto"
-                >
-                  Continue to Confirmation
-                </button>
-              </div>
+              <button onClick={handleImport} disabled={!!duplicateFile} className="px-6 py-2 bg-primary disabled:opacity-50 text-primary-foreground rounded-lg font-medium">Validate records</button>
             </div>
           )}
 
-          {/* Confirm Step */}
           {step === 'confirm' && importResult && (
-            <div className="max-w-2xl space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-6">
-                  <p className="text-emerald-300 text-sm font-medium">Valid Records</p>
-                  <p className="text-3xl font-bold text-emerald-400 mt-2">{importResult.assets.length}</p>
-                </div>
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6">
-                  <p className="text-red-300 text-sm font-medium">Issues Found</p>
-                  <p className="text-3xl font-bold text-red-400 mt-2">{importResult.errors.length}</p>
-                </div>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Stat label="Assets ready" value={importResult.assets.length} />
+                <Stat label="Duplicates skipped" value={importResult.duplicates} />
+                <Stat label="Issues" value={importResult.errors.length} />
               </div>
-
-              {importResult.errors.length > 0 && (
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <h4 className="font-semibold text-foreground mb-4">Issues to Review</h4>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {importResult.errors.slice(0, 10).map((error: any, idx: number) => (
-                      <div key={idx} className="flex gap-3 text-sm p-3 bg-secondary rounded-lg">
-                        <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-foreground font-medium">Row {error.row}</p>
-                          <p className="text-muted-foreground text-xs">{error.reason}</p>
-                        </div>
-                      </div>
-                    ))}
-                    {importResult.errors.length > 10 && (
-                      <p className="text-muted-foreground text-sm text-center py-2">
-                        +{importResult.errors.length - 10} more issues...
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setStep('preview')}
-                  className="px-6 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-lg transition-colors font-medium"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleConfirmImport}
-                  className="px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors font-medium ml-auto"
-                  disabled={importResult.assets.length === 0}
-                >
-                  Import {importResult.assets.length} Assets
-                </button>
+              <div className="bg-card border border-border rounded-lg overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="bg-secondary"><th className="px-3 py-3">Log #</th><th>Name</th><th>Tag</th><th>Serial</th><th>Model</th><th>Category</th><th>Status</th><th>Check Out To</th><th>Location</th><th>Action</th></tr></thead>
+                  <tbody>{importResult.assets.map((asset) => {
+                    const editing = editingAssetId === asset.id;
+                    return <tr key={asset.id} className="border-b border-border">{(['logNumber','name','assetTag','serialNo','model','category','status','assignedTo','location'] as const).map((field) => <td key={field} className="px-3 py-2">{editing ? <input className="w-32 bg-secondary border border-border rounded px-2 py-1" value={(asset[field] as string) || ''} onChange={(e) => updatePreviewAsset(asset.id, { [field]: e.target.value } as Partial<Asset>)} /> : <span>{(asset[field] as string) || '—'}</span>}</td>)}<td><button className="text-primary" onClick={() => setEditingAssetId(editing ? null : asset.id)}><Edit2 className="w-4 h-4" /></button></td></tr>;
+                  })}</tbody>
+                </table>
               </div>
+              {importResult.errors.length > 0 && <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{importResult.errors.slice(0, 8).map((e, i) => <p key={i}><AlertCircle className="inline w-4 h-4 mr-1" />Row {e.row}: {e.reason}</p>)}</div>}
+              <button onClick={handleConfirmImport} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium"><Check className="inline w-4 h-4 mr-2" />Import into inventory</button>
             </div>
           )}
 
-          {/* Complete Step */}
-          {step === 'complete' && (
-            <div className="max-w-2xl text-center space-y-6">
-              <div className="flex justify-center mb-6">
-                <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                  <Check className="w-8 h-8 text-emerald-400" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-foreground">Import Successful!</h3>
-              <p className="text-muted-foreground">
-                {importResult?.assets.length} assets have been imported and added to your inventory.
-              </p>
+          {step === 'complete' && <div className="bg-card border border-border rounded-lg p-8 text-center"><Check className="w-14 h-14 mx-auto text-primary mb-4" /><h3 className="text-2xl font-bold">Import complete</h3><p className="text-muted-foreground">Dashboard widgets and asset logs have updated in real time.</p></div>}
 
-              <div className="bg-secondary rounded-lg p-6 text-left">
-                <h4 className="font-semibold text-foreground mb-3">Summary</h4>
-                <div className="space-y-2 text-sm">
-                  <p className="text-muted-foreground">
-                    <span className="text-foreground font-medium">{importResult?.assets.length}</span> assets imported
-                  </p>
-                  <p className="text-muted-foreground">
-                    <span className="text-foreground font-medium">{importResult?.errors.length}</span> records skipped
-                  </p>
-                  <p className="text-muted-foreground">
-                    File: <span className="text-foreground font-medium">{fileName}</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button
-                  onClick={() => { 
-                    setStep('upload'); 
-                    setCsvText('');
-                    setFileName('');
-                    setImportResult(null);
-                  }}
-                  className="flex-1 px-6 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-lg transition-colors font-medium"
-                >
-                  Import Another File
-                </button>
-                <a
-                  href="/assets"
-                  className="flex-1 px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors font-medium text-center"
-                >
-                  View All Assets
-                </a>
-              </div>
-            </div>
-          )}
+          <div className="bg-card border border-border rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Uploaded files</h3>
+            <div className="space-y-2">{histories.map((history) => <div key={history.id} className="flex items-center justify-between rounded-lg bg-secondary p-3"><div><p className="font-medium text-foreground">{history.fileName}</p><p className="text-xs text-muted-foreground">{history.rowsImported} imported • {history.rowsSkipped} skipped</p></div><button onClick={() => confirm('Delete this uploaded file and all its assets?') && deleteImportedFile(history.fileSignature || history.id)} className="text-red-600 hover:text-red-700"><Trash2 className="w-5 h-5" /></button></div>)}</div>
+          </div>
         </div>
       </main>
     </div>
   );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return <div className="bg-card border border-border rounded-lg p-5"><p className="text-muted-foreground text-sm">{label}</p><p className="text-3xl font-bold text-primary">{value}</p></div>;
 }

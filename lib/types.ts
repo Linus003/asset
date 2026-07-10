@@ -9,13 +9,19 @@ export interface User {
   role: UserRole;
 }
 
-export type AssetStatus = 'active' | 'maintenance' | 'retired' | 'lost';
-export type AssetCategory = 'electronics' | 'furniture' | 'tools' | 'vehicles' | 'other';
+export type AssetStatus = 'active' | 'working' | 'maintenance' | 'retired' | 'lost';
+export type AssetCategory = 'cpu' | 'monitor' | 'keyboard' | 'mouse' | 'ip-phone' | 'switch' | 'printer' | 'ups' | 'electronics' | 'furniture' | 'tools' | 'vehicles' | 'other';
 export type MaintenanceType = 'preventive' | 'corrective' | 'inspection';
 
 export interface Asset {
   id: string;
   assetTag: string;
+  serialNo?: string;
+  model?: string;
+  assignedTo?: string;
+  logNumber?: string;
+  sourceFileId?: string;
+  sourceFileName?: string;
   name: string;
   category: AssetCategory;
   description: string;
@@ -45,6 +51,7 @@ export interface ImportHistory {
   id: string;
   fileName: string;
   timestamp: string;
+  fileSignature?: string;
   rowsImported: number;
   rowsSkipped: number;
   errors: ImportError[];
