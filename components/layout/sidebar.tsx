@@ -43,7 +43,7 @@ export function Sidebar() {
       <div className="p-6 border-b border-border">
         <h1 className="text-xl font-bold text-primary flex items-center gap-2">
           <Package className="w-6 h-6" />
-          <span>AssetHub</span>
+          <span>KeMU Inventory Management System</span>
         </h1>
       </div>
 

@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Asset Inventory Manager',
+  title: 'KeMU Inventory Management System',
   description: 'Comprehensive asset tracking and inventory management system',
 }
 
