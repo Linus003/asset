@@ -3,7 +3,7 @@ import { addAsset, addImportHistory, getCurrentUser } from './store';
 
 export const KEMU_TEMPLATE_HEADERS = ['Log #', 'Asset Name', 'Asset Tag', 'Serial No', 'Model', 'Category', 'Status', 'Check Out To', 'Location'];
 
-interface ColumnMapping {
+export interface ColumnMapping {
   logNumber?: string;
   serialNo?: string;
   model?: string;
@@ -19,6 +19,26 @@ interface ColumnMapping {
   supplier?: string;
   warranty?: string;
 }
+
+export const IMPORT_FIELD_LABELS: Record<keyof ColumnMapping, string> = {
+  logNumber: 'Log #',
+  assetTag: 'Asset Tag',
+  serialNo: 'Serial No',
+  model: 'Model',
+  assignedTo: 'Check Out To',
+  name: 'Asset Name',
+  category: 'Category',
+  description: 'Description',
+  location: 'Location',
+  status: 'Status',
+  purchaseDate: 'Purchase Date',
+  purchasePrice: 'Purchase Price',
+  supplier: 'Supplier / Vendor',
+  warranty: 'Warranty Expiry',
+};
+
+export const REQUIRED_IMPORT_FIELDS: (keyof ColumnMapping)[] = ['name', 'assetTag', 'serialNo', 'model', 'assignedTo', 'location'];
+
 
 // Fuzzy string matching for column detection
 function normalizeHeader(value: string): string {
@@ -234,7 +254,7 @@ function countDetectedColumns(mapping: ColumnMapping): number {
   return Object.values(mapping).filter(Boolean).length;
 }
 
-function findHeaderRow(rows: string[][]): { headerIndex: number; headers: string[]; mapping: ColumnMapping } {
+export function findHeaderRow(rows: string[][]): { headerIndex: number; headers: string[]; mapping: ColumnMapping } {
   let bestMatch = { headerIndex: 0, headers: rows[0] || [], mapping: autoDetectColumns(rows[0] || []), score: 0 };
   bestMatch.score = countDetectedColumns(bestMatch.mapping);
 
@@ -250,21 +270,27 @@ function findHeaderRow(rows: string[][]): { headerIndex: number; headers: string
   return bestMatch;
 }
 
-interface ImportResult {
+export interface ImportResult {
   assets: Asset[];
   errors: ImportError[];
   duplicates: number;
+  mapping: ColumnMapping;
+  headers: string[];
+  headerIndex: number;
 }
 
 // Intelligent import with validation and duplicate detection
-export function importAssets(csvText: string, existingAssets: Asset[]): ImportResult {
+export function importAssets(csvText: string, existingAssets: Asset[], manualMapping?: ColumnMapping, manualHeaderIndex?: number): ImportResult {
   const rows = parseCSVData(csvText);
   
   if (rows.length < 2) {
-    return { assets: [], errors: [{ row: 1, field: 'all', value: '', reason: 'No data rows found' }], duplicates: 0 };
+    return { assets: [], errors: [{ row: 1, field: 'all', value: '', reason: 'No data rows found' }], duplicates: 0, mapping: {}, headers: [], headerIndex: 0 };
   }
 
-  const { headerIndex, headers, mapping } = findHeaderRow(rows);
+  const detected = findHeaderRow(rows);
+  const headerIndex = manualHeaderIndex ?? detected.headerIndex;
+  const headers = rows[headerIndex] || detected.headers;
+  const mapping = manualMapping || detected.mapping;
   const assets: Asset[] = [];
   const errors: ImportError[] = [];
   const existingTags = new Set(existingAssets.map(a => a.assetTag).filter(Boolean));
@@ -276,6 +302,9 @@ export function importAssets(csvText: string, existingAssets: Asset[]): ImportRe
       assets: [],
       errors: [{ row: headerIndex + 1, field: 'headers', value: headers.join(', '), reason: 'Could not detect asset columns. Please include headers like Asset Name, Serial No, Model, Category, and Check Out To.' }],
       duplicates: 0,
+      mapping,
+      headers,
+      headerIndex,
     };
   }
 
@@ -363,7 +392,7 @@ export function importAssets(csvText: string, existingAssets: Asset[]): ImportRe
     }
   }
 
-  return { assets, errors, duplicates: duplicateCount };
+  return { assets, errors, duplicates: duplicateCount, mapping, headers, headerIndex };
 }
 
 // Save imported assets

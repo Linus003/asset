@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { addAsset, addImportHistory, deleteImportedFile, getAssets, getImportHistory, initializeStore, subscribeToStoreChanges } from '@/lib/store';
-import { importAssets, KEMU_TEMPLATE_HEADERS, parseCSVData } from '@/lib/import-engine';
+import { ColumnMapping, findHeaderRow, importAssets, IMPORT_FIELD_LABELS, KEMU_TEMPLATE_HEADERS, parseCSVData, REQUIRED_IMPORT_FIELDS } from '@/lib/import-engine';
+import * as XLSX from 'xlsx';
 import { Asset } from '@/lib/types';
-import { AlertCircle, Check, Edit2, FileSpreadsheet, Trash2, Upload } from 'lucide-react';
+import { AlertCircle, Check, Edit2, FileSpreadsheet, Settings2, Trash2, Upload } from 'lucide-react';
 
-type ImportStep = 'upload' | 'preview' | 'confirm' | 'complete';
+type ImportStep = 'upload' | 'mapping' | 'preview' | 'confirm' | 'complete';
 
 type ImportResult = ReturnType<typeof importAssets>;
 
@@ -24,6 +25,9 @@ export default function ImportPage() {
   const [fileName, setFileName] = useState('');
   const [fileSignature, setFileSignature] = useState('');
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [mapping, setMapping] = useState<ColumnMapping>({});
+  const [headerIndex, setHeaderIndex] = useState(0);
+  const [fileError, setFileError] = useState('');
   const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
   const [histories, setHistories] = useState(getImportHistory());
 
@@ -44,18 +48,28 @@ export default function ImportPage() {
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const text = event.target?.result as string;
-      setCsvText(text);
-      setFileName(file.name);
-      setFileSignature(signatureFor(file.name, text));
-      setImportResult(null);
-      setStep('preview');
+      try {
+        const buffer = event.target?.result as ArrayBuffer;
+        const text = file.name.match(/\.xlsx?$/i) ? excelBufferToCsvText(buffer) : new TextDecoder('utf-8').decode(buffer);
+        const parsedRows = parseCSVData(text);
+        const detected = findHeaderRow(parsedRows);
+        setCsvText(text);
+        setFileName(file.name);
+        setFileSignature(signatureFor(file.name, text));
+        setMapping(detected.mapping);
+        setHeaderIndex(detected.headerIndex);
+        setFileError('');
+        setImportResult(null);
+        setStep('mapping');
+      } catch (error) {
+        setFileError(error instanceof Error ? error.message : 'Could not read this file.');
+      }
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   };
 
   const handleImport = () => {
-    const result = importAssets(csvText, getAssets());
+    const result = importAssets(csvText, getAssets(), mapping, headerIndex);
     setImportResult(result);
     setStep('confirm');
   };
@@ -105,7 +119,10 @@ export default function ImportPage() {
   };
 
   const rows = parseCSVData(csvText);
-  const previewRows = rows.slice(1, 6);
+  const headers = rows[headerIndex] || rows[0] || KEMU_TEMPLATE_HEADERS;
+  const previewRows = rows.slice(headerIndex + 1, headerIndex + 6);
+  const mappedCount = Object.values(mapping).filter(Boolean).length;
+  const readiness = Math.round((mappedCount / Object.keys(IMPORT_FIELD_LABELS).length) * 100);
 
   return (
     <div className="flex h-screen bg-background">
@@ -113,9 +130,9 @@ export default function ImportPage() {
       <main className="flex-1 overflow-auto flex flex-col">
         <Header title="Import Assets & Equipment" description="Upload KeMU inventory logs using the approved spreadsheet layout" />
         <div className="flex-1 p-6 space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {['Upload file', 'Preview layout', 'Validate & edit', 'Complete'].map((label, index) => (
-              <div key={label} className={`rounded-lg border p-4 ${index <= ['upload','preview','confirm','complete'].indexOf(step) ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {['Upload file', 'Map columns', 'Preview layout', 'Validate & edit', 'Complete'].map((label, index) => (
+              <div key={label} className={`rounded-lg border p-4 ${index <= ['upload','mapping','preview','confirm','complete'].indexOf(step) ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}>
                 <p className="text-sm font-semibold text-foreground">{index + 1}. {label}</p>
               </div>
             ))}
@@ -127,9 +144,10 @@ export default function ImportPage() {
                 <label htmlFor="file-upload" className="cursor-pointer">
                   <Upload className="w-12 h-12 text-primary mx-auto mb-4" />
                   <p className="text-lg font-semibold text-foreground mb-2">Upload the KeMU asset log</p>
-                  <p className="text-muted-foreground mb-4">CSV, tab-delimited Excel exports, or pasted spreadsheet text</p>
+                  <p className="text-muted-foreground mb-4">CSV, TSV, TXT, XLS, and XLSX files are parsed into clean spreadsheet rows before import</p>
                   <input id="file-upload" type="file" accept=".csv,.tsv,.txt,.xls,.xlsx" onChange={handleFileUpload} className="hidden" />
                 </label>
+                {fileError && <p className="mt-4 text-sm font-medium text-red-600">{fileError}</p>}
               </div>
               <div className="bg-card border border-border rounded-lg p-6">
                 <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2"><FileSpreadsheet className="w-5 h-5 text-primary" />Required layout</h3>
@@ -140,20 +158,53 @@ export default function ImportPage() {
             </div>
           )}
 
+
+          {step === 'mapping' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                <Stat label="Detected fields" value={mappedCount} />
+                <Stat label="Readiness" value={readiness} suffix="%" />
+                <Stat label="Rows found" value={Math.max(rows.length - headerIndex - 1, 0)} />
+                <Stat label="Header row" value={headerIndex + 1} />
+              </div>
+              <div className="bg-card border border-border rounded-lg p-5">
+                <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Settings2 className="w-5 h-5 text-primary" />Smart manual mapping</h3>
+                <p className="text-sm text-muted-foreground mb-4">Review the auto-detected Excel columns below. Change only mismatches; required ICT inventory fields are highlighted to reduce import mistakes.</p>
+                <label className="mb-4 block max-w-xs text-sm font-medium text-foreground">Header row
+                  <select value={headerIndex} onChange={(e) => { const nextIndex = Number(e.target.value); setHeaderIndex(nextIndex); setMapping(findHeaderRow(rows.slice(nextIndex, nextIndex + 1)).mapping); }} className="mt-1 w-full rounded border border-border bg-secondary px-3 py-2 text-sm text-foreground">
+                    {rows.slice(0, 10).map((row, index) => <option key={index} value={index}>Row {index + 1}: {row.filter(Boolean).slice(0, 4).join(' | ') || 'Blank row'}</option>)}
+                  </select>
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                  {(Object.keys(IMPORT_FIELD_LABELS) as (keyof ColumnMapping)[]).map((field) => (
+                    <label key={field} className={`rounded-lg border p-3 ${REQUIRED_IMPORT_FIELDS.includes(field) ? 'border-primary/40 bg-primary/5' : 'border-border bg-background'}`}>
+                      <span className="block text-xs font-semibold text-muted-foreground mb-1">{IMPORT_FIELD_LABELS[field]} {REQUIRED_IMPORT_FIELDS.includes(field) ? '*' : ''}</span>
+                      <select value={mapping[field] || ''} onChange={(e) => setMapping((current) => ({ ...current, [field]: e.target.value || undefined }))} className="w-full rounded border border-border bg-secondary px-3 py-2 text-sm text-foreground">
+                        <option value="">Do not import</option>
+                        {headers.map((header, index) => <option key={`${header}-${index}`} value={header}>{header || `Column ${index + 1}`}</option>)}
+                      </select>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <button onClick={() => setStep('preview')} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium">Preview mapped data</button>
+            </div>
+          )}
+
           {step === 'preview' && (
             <div className="space-y-6">
               <div className="bg-card border border-border rounded-lg p-4">
                 <p className="font-medium text-foreground">File: <span className="text-primary">{fileName}</span></p>
-                <p className="text-muted-foreground text-sm">Found {Math.max(rows.length - 1, 0)} data rows using the uploaded spreadsheet layout.</p>
+                <p className="text-muted-foreground text-sm">Found {Math.max(rows.length - headerIndex - 1, 0)} data rows using row {headerIndex + 1} as the header.</p>
                 {duplicateFile && <p className="mt-2 text-red-600 text-sm font-medium">Duplicate file detected: this file was already uploaded on {new Date(duplicateFile.timestamp).toLocaleString()}.</p>}
               </div>
               <div className="bg-card border border-border rounded-lg overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="bg-primary text-primary-foreground">{(rows[0] || KEMU_TEMPLATE_HEADERS).map((h, i) => <th key={i} className="px-4 py-3 text-left">{h}</th>)}</tr></thead>
+                  <thead><tr className="bg-primary text-primary-foreground">{headers.map((h, i) => <th key={i} className="px-4 py-3 text-left">{h}</th>)}</tr></thead>
                   <tbody>{previewRows.map((row, i) => <tr key={i} className="border-b border-border">{row.map((cell, c) => <td key={c} className="px-4 py-3 text-foreground">{cell}</td>)}</tr>)}</tbody>
                 </table>
               </div>
-              <button onClick={handleImport} disabled={!!duplicateFile} className="px-6 py-2 bg-primary disabled:opacity-50 text-primary-foreground rounded-lg font-medium">Validate records</button>
+              <div className="flex gap-3"><button onClick={() => setStep('mapping')} className="px-6 py-2 bg-secondary text-foreground rounded-lg font-medium">Back to mapping</button><button onClick={handleImport} disabled={!!duplicateFile} className="px-6 py-2 bg-primary disabled:opacity-50 text-primary-foreground rounded-lg font-medium">Validate records</button></div>
             </div>
           )}
 
@@ -190,6 +241,13 @@ export default function ImportPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
-  return <div className="bg-card border border-border rounded-lg p-5"><p className="text-muted-foreground text-sm">{label}</p><p className="text-3xl font-bold text-primary">{value}</p></div>;
+function excelBufferToCsvText(buffer: ArrayBuffer): string {
+  const workbook = XLSX.read(buffer, { type: 'array' });
+  const firstSheet = workbook.SheetNames[0];
+  if (!firstSheet) throw new Error('This workbook does not contain any sheets.');
+  return XLSX.utils.sheet_to_csv(workbook.Sheets[firstSheet], { FS: ',', blankrows: false });
+}
+
+function Stat({ label, value, suffix = '' }: { label: string; value: number; suffix?: string }) {
+  return <div className="bg-card border border-border rounded-lg p-5"><p className="text-muted-foreground text-sm">{label}</p><p className="text-3xl font-bold text-primary">{value}{suffix}</p></div>;
 }

@@ -83,4 +83,9 @@ export interface DashboardMetrics {
   assetsByLocation: Record<string, number>;
   upcomingMaintenance: MaintenanceRecord[];
   recentImports: ImportHistory[];
+  assignedAssets: number;
+  retiredAssets: number;
+  missingSerials: number;
+  missingTags: number;
+  valueByCategory: Record<string, number>;
 }

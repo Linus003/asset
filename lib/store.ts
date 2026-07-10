@@ -290,10 +290,12 @@ export function switchUser(role: UserRole): void {
 export function getDashboardMetrics(): DashboardMetrics {
   const assetsByCategory: Record<string, number> = {};
   const assetsByLocation: Record<string, number> = {};
+  const valueByCategory: Record<string, number> = {};
 
   assets.forEach(asset => {
     assetsByCategory[asset.category] = (assetsByCategory[asset.category] || 0) + 1;
     assetsByLocation[asset.location] = (assetsByLocation[asset.location] || 0) + 1;
+    valueByCategory[asset.category] = (valueByCategory[asset.category] || 0) + (asset.purchasePrice || 0);
   });
 
   const upcomingMaintenance = maintenanceRecords
@@ -309,6 +311,11 @@ export function getDashboardMetrics(): DashboardMetrics {
     assetsByLocation,
     upcomingMaintenance,
     recentImports: importHistories.slice(0, 5),
+    assignedAssets: assets.filter(a => Boolean(a.assignedTo?.trim())).length,
+    retiredAssets: assets.filter(a => a.status === 'retired' || a.status === 'lost').length,
+    missingSerials: assets.filter(a => !a.serialNo?.trim()).length,
+    missingTags: assets.filter(a => !a.assetTag?.trim()).length,
+    valueByCategory,
   };
 }
 

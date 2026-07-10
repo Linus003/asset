@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { initializeStore, getDashboardMetrics, subscribeToStoreChanges } from '@/lib/store';
-import { Package, AlertCircle, BarChart3, TrendingUp } from 'lucide-react';
+import { Package, AlertCircle, BarChart3, TrendingUp, ShieldCheck, Users, Wrench, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -16,6 +16,11 @@ export default function DashboardPage() {
     refreshMetrics();
     return subscribeToStoreChanges(refreshMetrics);
   }, []);
+
+  const totalValue = Object.values(metrics.valueByCategory).reduce((sum, value) => sum + value, 0);
+  const assignedAssets = metrics.assignedAssets;
+  const unassignedAssets = Math.max(metrics.totalAssets - assignedAssets, 0);
+  const complianceRate = metrics.totalAssets ? (((metrics.totalAssets - metrics.missingSerials) / metrics.totalAssets) * 100).toFixed(1) : '0.0';
 
   return (
     <div className="flex h-screen bg-background">
@@ -52,12 +57,20 @@ export default function DashboardPage() {
               color="from-amber-500 to-amber-600"
             />
             <MetricCard
-              label="Assets by Location"
+              label="Locations"
               value={Object.keys(metrics.assetsByLocation).length}
-              icon={<BarChart3 className="w-6 h-6" />}
-              trend="Different locations"
+              icon={<MapPin className="w-6 h-6" />}
+              trend="Campuses, offices, and labs"
               color="from-purple-500 to-purple-600"
             />
+          </div>
+
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <InsightCard icon={<BarChart3 className="w-5 h-5" />} label="Asset Value" value={`KES ${totalValue.toLocaleString()}`} detail="Book value captured from imports and manual entries" />
+            <InsightCard icon={<Users className="w-5 h-5" />} label="Assigned Devices" value={assignedAssets.toString()} detail={`${unassignedAssets} assets still need a custodian`} />
+            <InsightCard icon={<ShieldCheck className="w-5 h-5" />} label="Serial Compliance" value={`${complianceRate}%`} detail={`${metrics.missingSerials} records missing serial numbers`} />
+            <InsightCard icon={<Wrench className="w-5 h-5" />} label="Lifecycle Risk" value={metrics.retiredAssets.toString()} detail="Retired or end-of-life equipment to replace" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -114,6 +127,28 @@ export default function DashboardPage() {
                 ) : (
                   <p className="text-muted-foreground text-sm">No imports yet</p>
                 )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">ERP Data Quality</h3>
+              <div className="space-y-4">
+                <QualityBar label="Tagged assets" value={metrics.totalAssets - metrics.missingTags} total={metrics.totalAssets} />
+                <QualityBar label="Serial numbers" value={metrics.totalAssets - metrics.missingSerials} total={metrics.totalAssets} />
+                <QualityBar label="Assigned custodians" value={assignedAssets} total={metrics.totalAssets} />
+              </div>
+            </div>
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Value by Category</h3>
+              <div className="space-y-3">
+                {Object.entries(metrics.valueByCategory).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([category, value]) => (
+                  <div key={category} className="flex items-center justify-between gap-4">
+                    <span className="text-muted-foreground capitalize">{category}</span>
+                    <span className="font-semibold text-foreground">KES {value.toLocaleString()}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -193,6 +228,27 @@ function MetricCard({
         <div className="opacity-80">{icon}</div>
       </div>
       <p className="text-xs opacity-75">{trend}</p>
+    </div>
+  );
+}
+
+
+function InsightCard({ icon, label, value, detail }: { icon: React.ReactNode; label: string; value: string; detail: string }) {
+  return (
+    <div className="bg-card border border-border rounded-lg p-5">
+      <div className="flex items-center gap-2 text-primary mb-3">{icon}<span className="text-sm font-semibold">{label}</span></div>
+      <p className="text-2xl font-bold text-foreground">{value}</p>
+      <p className="text-xs text-muted-foreground mt-1">{detail}</p>
+    </div>
+  );
+}
+
+function QualityBar({ label, value, total }: { label: string; value: number; total: number }) {
+  const percent = total ? Math.round((value / total) * 100) : 0;
+  return (
+    <div>
+      <div className="flex items-center justify-between text-sm mb-1"><span className="text-muted-foreground">{label}</span><span className="font-semibold text-foreground">{percent}%</span></div>
+      <div className="h-2 rounded-full bg-secondary overflow-hidden"><div className="h-full bg-primary" style={{ width: `${percent}%` }} /></div>
     </div>
   );
 }
