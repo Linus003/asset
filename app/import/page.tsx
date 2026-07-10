@@ -7,7 +7,7 @@ import { addAsset, addImportHistory, deleteImportedFile, getAssets, getImportHis
 import { ColumnMapping, findHeaderRow, importAssets, IMPORT_FIELD_LABELS, KEMU_TEMPLATE_HEADERS, parseCSVData, REQUIRED_IMPORT_FIELDS } from '@/lib/import-engine';
 import * as XLSX from 'xlsx';
 import { Asset } from '@/lib/types';
-import { AlertCircle, Check, Edit2, FileSpreadsheet, Settings2, Trash2, Upload } from 'lucide-react';
+import { AlertCircle, Check, Download, Edit2, Eye, FileSpreadsheet, Settings2, Trash2, Upload } from 'lucide-react';
 
 type ImportStep = 'upload' | 'mapping' | 'preview' | 'confirm' | 'complete';
 
@@ -30,6 +30,7 @@ export default function ImportPage() {
   const [fileError, setFileError] = useState('');
   const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
   const [histories, setHistories] = useState(getImportHistory());
+  const [expandedFileId, setExpandedFileId] = useState<string | null>(null);
 
   useEffect(() => {
     initializeStore();
@@ -123,6 +124,23 @@ export default function ImportPage() {
   const previewRows = rows.slice(headerIndex + 1, headerIndex + 6);
   const mappedCount = Object.values(mapping).filter(Boolean).length;
   const readiness = Math.round((mappedCount / Object.keys(IMPORT_FIELD_LABELS).length) * 100);
+
+  const assetsForFile = (fileId?: string) => getAssets().filter((asset) => asset.sourceFileId === fileId);
+
+  const exportImportedFile = (historyFileSignature?: string, historyFileName = 'imported-assets') => {
+    const importedAssets = assetsForFile(historyFileSignature);
+    const exportHeaders = ['Log #', 'Asset Name', 'Asset Tag', 'Serial No', 'Model', 'Category', 'Status', 'Check Out To', 'Location'];
+    const exportRows = importedAssets.map((asset) => [asset.logNumber, asset.name, asset.assetTag, asset.serialNo, asset.model, asset.category, asset.status, asset.assignedTo, asset.location]);
+    const csv = [exportHeaders, ...exportRows]
+      .map((row) => row.map((cell) => `\"${String(cell || '').replace(/\"/g, '\"\"')}\"`).join(','))
+      .join('\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${historyFileName.replace(/\.[^.]+$/, '')}-assets.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -233,7 +251,28 @@ export default function ImportPage() {
 
           <div className="bg-card border border-border rounded-lg p-6">
             <h3 className="text-lg font-semibold text-foreground mb-4">Uploaded files</h3>
-            <div className="space-y-2">{histories.map((history) => <div key={history.id} className="flex items-center justify-between rounded-lg bg-secondary p-3"><div><p className="font-medium text-foreground">{history.fileName}</p><p className="text-xs text-muted-foreground">{history.rowsImported} imported • {history.rowsSkipped} skipped</p></div><button onClick={() => confirm('Delete this uploaded file and all its assets?') && deleteImportedFile(history.fileSignature || history.id)} className="text-red-600 hover:text-red-700"><Trash2 className="w-5 h-5" /></button></div>)}</div>
+            <div className="space-y-3">{histories.map((history) => {
+              const fileId = history.fileSignature || history.id;
+              const importedAssets = assetsForFile(fileId);
+              const expanded = expandedFileId === fileId;
+              return <div key={history.id} className="rounded-lg bg-secondary p-3">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <button type="button" onClick={() => setExpandedFileId(expanded ? null : fileId)} className="text-left">
+                    <p className="font-medium text-foreground hover:text-primary">{history.fileName}</p>
+                    <p className="text-xs text-muted-foreground">{history.rowsImported} imported • {history.rowsSkipped} skipped • {importedAssets.length} currently saved on server</p>
+                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => setExpandedFileId(expanded ? null : fileId)} className="inline-flex items-center gap-1 rounded border border-border px-3 py-2 text-sm text-foreground hover:bg-background"><Eye className="w-4 h-4" />{expanded ? 'Hide' : 'View'} assets</button>
+                    <button type="button" onClick={() => exportImportedFile(fileId, history.fileName)} disabled={!importedAssets.length} className="inline-flex items-center gap-1 rounded border border-border px-3 py-2 text-sm text-foreground hover:bg-background disabled:opacity-50"><Download className="w-4 h-4" />Export</button>
+                    <button type="button" onClick={() => confirm('Delete this uploaded file and all its assets?') && deleteImportedFile(fileId)} className="inline-flex items-center gap-1 rounded border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50"><Trash2 className="w-4 h-4" />Delete</button>
+                  </div>
+                </div>
+                {expanded && <div className="mt-3 overflow-x-auto rounded border border-border bg-background">
+                  <table className="w-full text-sm"><thead><tr className="bg-primary text-primary-foreground"><th className="px-3 py-2 text-left">Asset</th><th className="px-3 py-2 text-left">Tag</th><th className="px-3 py-2 text-left">Serial</th><th className="px-3 py-2 text-left">Location</th><th className="px-3 py-2 text-left">Assigned To</th></tr></thead><tbody>{importedAssets.map((asset) => <tr key={asset.id} className="border-b border-border"><td className="px-3 py-2">{asset.name}</td><td className="px-3 py-2">{asset.assetTag}</td><td className="px-3 py-2">{asset.serialNo || '—'}</td><td className="px-3 py-2">{asset.location}</td><td className="px-3 py-2">{asset.assignedTo || '—'}</td></tr>)}</tbody></table>
+                  {!importedAssets.length && <p className="p-4 text-sm text-muted-foreground">No saved assets are attached to this upload.</p>}
+                </div>}
+              </div>;
+            })}</div>
           </div>
         </div>
       </main>
