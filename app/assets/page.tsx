@@ -18,6 +18,8 @@ export default function AssetsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  
+  const [editFormData, setEditFormData] = useState<Partial<Asset>>({});
 
   useEffect(() => {
     initializeStore();
@@ -54,6 +56,43 @@ export default function AssetsPage() {
         status: selectedStatus || undefined,
       }));
     }
+  };
+
+  const handleEditClick = (asset: Asset) => {
+    if (editingId === asset.id) {
+      setEditingId(null);
+      return;
+    }
+    setEditingId(asset.id);
+    setEditFormData({
+      name: asset.name,
+      category: asset.category,
+      location: asset.location,
+      status: asset.status,
+      purchasePrice: asset.purchasePrice,
+    });
+  };
+
+  const handleSaveEdit = (id: string) => {
+    const allAssets = getAssets();
+    const asset = allAssets.find(a => a.id === id);
+    if (!asset) return;
+    
+    const updatedAsset = { ...asset, ...editFormData };
+    const updatedAssets = allAssets.map(a => 
+      a.id === id ? updatedAsset : a
+    );
+    
+    localStorage.setItem('assets', JSON.stringify(updatedAssets));
+    
+    setEditingId(null);
+    const refreshed = getAssets();
+    setAssets(refreshed);
+    setFilteredAssets(searchAssets(searchQuery, {
+      category: selectedCategory || undefined,
+      location: selectedLocation || undefined,
+      status: selectedStatus || undefined,
+    }));
   };
 
   return (
@@ -171,47 +210,143 @@ export default function AssetsPage() {
                       <tr key={asset.id} className="border-b border-border hover:bg-secondary/50 transition-colors">
                         <td className="py-4 px-6"><input type="checkbox" checked={selectedIds.includes(asset.id)} onChange={(e) => setSelectedIds((ids) => e.target.checked ? [...ids, asset.id] : ids.filter((id) => id !== asset.id))} /></td>
                         <td className="py-4 px-6 font-mono text-primary font-semibold">{asset.assetTag}</td>
-                        <td className="py-4 px-6 text-foreground">{asset.name}</td>
-                        <td className="py-4 px-6">
-                          <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium text-foreground capitalize">
-                            {asset.category}
-                          </span>
+                        
+                        {/* ✅ MODIFIED: Name column with inline editing */}
+                        <td className="py-4 px-6 text-foreground">
+                          {editingId === asset.id ? (
+                            <input
+                              type="text"
+                              value={editFormData.name || ''}
+                              onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                              className="w-full px-2 py-1 bg-background border border-border rounded text-foreground"
+                              autoFocus
+                            />
+                          ) : (
+                            asset.name
+                          )}
                         </td>
-                        <td className="py-4 px-6 text-muted-foreground">{asset.location}</td>
+                        
+                        {/* ✅ MODIFIED: Category column with inline editing */}
                         <td className="py-4 px-6">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
-                            asset.status === 'active' ? 'bg-emerald-500/20 text-emerald-300' :
-                            asset.status === 'maintenance' ? 'bg-amber-500/20 text-amber-300' :
-                            asset.status === 'retired' ? 'bg-red-500/20 text-red-300' :
-                            'bg-gray-500/20 text-gray-300'
-                          }`}>
-                            {asset.status}
-                          </span>
+                          {editingId === asset.id ? (
+                            <select
+                              value={editFormData.category || ''}
+                              onChange={(e) => setEditFormData({...editFormData, category: e.target.value})}
+                              className="w-full px-2 py-1 bg-background border border-border rounded text-foreground capitalize"
+                            >
+                              {categories.map((cat) => (
+                                <option key={cat} value={cat}>{cat}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium text-foreground capitalize">
+                              {asset.category}
+                            </span>
+                          )}
                         </td>
-                        <td className="py-4 px-6 text-foreground font-semibold">${asset.purchasePrice.toLocaleString()}</td>
+                        
+                        {/* ✅ MODIFIED: Location column with inline editing */}
+                        <td className="py-4 px-6 text-muted-foreground">
+                          {editingId === asset.id ? (
+                            <select
+                              value={editFormData.location || ''}
+                              onChange={(e) => setEditFormData({...editFormData, location: e.target.value})}
+                              className="w-full px-2 py-1 bg-background border border-border rounded text-foreground"
+                            >
+                              {locations.map((loc) => (
+                                <option key={loc} value={loc}>{loc}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            asset.location
+                          )}
+                        </td>
+                  
+                        <td className="py-4 px-6">
+                          {editingId === asset.id ? (
+                            <select
+                              value={editFormData.status || ''}
+                              onChange={(e) => setEditFormData({...editFormData, status: e.target.value})}
+                              className="w-full px-2 py-1 bg-background border border-border rounded text-foreground capitalize"
+                            >
+                              {statuses.map((status) => (
+                                <option key={status} value={status}>{status}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                              asset.status === 'active' ? 'bg-emerald-500/20 text-emerald-300' :
+                              asset.status === 'maintenance' ? 'bg-amber-500/20 text-amber-300' :
+                              asset.status === 'retired' ? 'bg-red-500/20 text-red-300' :
+                              'bg-gray-500/20 text-gray-300'
+                            }`}>
+                              {asset.status}
+                            </span>
+                          )}
+                        </td>
+                        
+                        <td className="py-4 px-6 text-foreground font-semibold">
+                          {editingId === asset.id ? (
+                            <input
+                              type="number"
+                              value={editFormData.purchasePrice || ''}
+                              onChange={(e) => setEditFormData({...editFormData, purchasePrice: parseFloat(e.target.value)})}
+                              className="w-full px-2 py-1 bg-background border border-border rounded text-foreground"
+                              step="0.01"
+                            />
+                          ) : (
+                            `$${asset.purchasePrice.toLocaleString()}`
+                          )}
+                        </td>
+                        
                         <td className="py-4 px-6">
                           <div className="flex items-center justify-center gap-2">
-                            <Link
-                              href={`/assets/${asset.id}`}
-                              className="p-2 hover:bg-secondary rounded-lg transition-colors text-primary"
-                              title="View details"
-                            >
-                              <TrendingUp className="w-4 h-4" />
-                            </Link>
-                            <button
-                              onClick={() => setEditingId(asset.id === editingId ? null : asset.id)}
-                              className="p-2 hover:bg-secondary rounded-lg transition-colors text-foreground"
-                              title="Edit"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(asset.id)}
-                              className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400"
-                              title="Delete"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            {editingId === asset.id ? (
+                              <>
+                                <button
+                                  onClick={() => handleSaveEdit(asset.id)}
+                                  className="p-2 bg-emerald-500/20 hover:bg-emerald-500/30 rounded-lg transition-colors text-emerald-400"
+                                  title="Save"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => setEditingId(null)}
+                                  className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-colors text-red-400"
+                                  title="Cancel"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <Link
+                                  href={`/assets/${asset.id}`}
+                                  className="p-2 hover:bg-secondary rounded-lg transition-colors text-primary"
+                                  title="View details"
+                                >
+                                  <TrendingUp className="w-4 h-4" />
+                                </Link>
+                                <button
+                                  onClick={() => handleEditClick(asset)}
+                                  className="p-2 hover:bg-secondary rounded-lg transition-colors text-foreground"
+                                  title="Edit"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(asset.id)}
+                                  className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
