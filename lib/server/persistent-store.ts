@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { Asset, AssetMovement, CampusId, ImportHistory, MaintenanceRecord, User } from '@/lib/types';
 
-const CAMPUS_IDS: Exclude<CampusId, 'all'>[] = ['nairobi', 'mombasa', 'meru-town'];
+const CAMPUS_IDS: Exclude<CampusId, 'all'>[] = ['nairobi', 'mombasa', 'meru-town', 'meru-main'];
 
 function normalizeCampusId(campusId?: string): Exclude<CampusId, 'all'> {
   return CAMPUS_IDS.includes(campusId as Exclude<CampusId, 'all'>) ? campusId as Exclude<CampusId, 'all'> : 'nairobi';

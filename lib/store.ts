@@ -11,6 +11,7 @@ export const CAMPUSES: Campus[] = [
   { id: 'nairobi', name: 'Nairobi Campus', description: 'Main Nairobi asset profile' },
   { id: 'mombasa', name: 'Mombasa Campus', description: 'Coastal campus asset profile' },
   { id: 'meru-town', name: 'Meru Town Campus', description: 'Meru Town campus asset profile' },
+  { id: 'meru-main', name: 'Meru Main Campus', description: 'Main Meru campus asset profile' },
 ];
 
 let selectedCampusId: CampusId = 'nairobi';
@@ -489,7 +490,12 @@ export function searchAssets(query: string, filters?: { category?: string; locat
       asset.name.toLowerCase().includes(lowerQuery) ||
       asset.assetTag.toLowerCase().includes(lowerQuery) ||
       asset.description.toLowerCase().includes(lowerQuery) ||
-      asset.location.toLowerCase().includes(lowerQuery);
+      asset.location.toLowerCase().includes(lowerQuery) ||
+      asset.assignedTo?.toLowerCase().includes(lowerQuery) ||
+      asset.serialNo?.toLowerCase().includes(lowerQuery) ||
+      asset.model?.toLowerCase().includes(lowerQuery) ||
+      asset.supplier.toLowerCase().includes(lowerQuery) ||
+      asset.logNumber?.toLowerCase().includes(lowerQuery);
 
     const matchesCategory = !filters?.category || asset.category === filters.category;
     const matchesLocation = !filters?.location || asset.location === filters.location;

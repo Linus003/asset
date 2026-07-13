@@ -11,9 +11,10 @@ interface HeaderProps {
   selectedCampusId?: CampusId;
   onCampusChange?: (campusId: CampusId) => void;
   campusOptions?: { id: CampusId; name: string }[];
+  searchPlaceholder?: string;
 }
 
-export function Header({ title, description, searchValue, onSearchChange, selectedCampusId, onCampusChange, campusOptions }: HeaderProps) {
+export function Header({ title, description, searchValue, onSearchChange, selectedCampusId, onCampusChange, campusOptions, searchPlaceholder = 'Search...' }: HeaderProps) {
   return (
     <div className="bg-card border-b border-border p-6">
       <div className="space-y-4">
@@ -44,7 +45,7 @@ export function Header({ title, description, searchValue, onSearchChange, select
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={searchPlaceholder}
               value={searchValue || ''}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-secondary border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
