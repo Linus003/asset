@@ -10,7 +10,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP pro 3400",
       "category": "cpu",
-      "description": "HP pro 3400 • TRF20905QQ • Checked out to Mary Ndabari",
+      "description": "HP pro 3400 \u2022 TRF20905QQ \u2022 Checked out to Mary Ndabari",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -19,7 +19,8 @@
       "warranty": "",
       "id": "asset-1783671525690",
       "lastModified": "2026-07-10T08:18:45.690Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "N/A",
@@ -31,7 +32,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "HP • N/A • Checked out to Mary Ndabari",
+      "description": "HP \u2022 N/A \u2022 Checked out to Mary Ndabari",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -40,7 +41,8 @@
       "warranty": "",
       "id": "asset-1783671525690",
       "lastModified": "2026-07-10T08:18:45.690Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "PSA1020080841",
@@ -52,7 +54,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Mouse",
       "category": "mouse",
-      "description": "HP • PSA1020080841 • Checked out to Mary Ndabari",
+      "description": "HP \u2022 PSA1020080841 \u2022 Checked out to Mary Ndabari",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -61,7 +63,8 @@
       "warranty": "",
       "id": "asset-1783671525691",
       "lastModified": "2026-07-10T08:18:45.691Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CNC313P202",
@@ -73,7 +76,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP LV2011 • CNC313P202 • Checked out to Mary Ndabari",
+      "description": "HP LV2011 \u2022 CNC313P202 \u2022 Checked out to Mary Ndabari",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -82,7 +85,8 @@
       "warranty": "",
       "id": "asset-1783671525691",
       "lastModified": "2026-07-10T08:18:45.691Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FCH1813A0G",
@@ -94,7 +98,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco",
       "category": "ip-phone",
-      "description": "Cisco IP Phone • FCH1813A0G • Checked out to Mary Ndabari",
+      "description": "Cisco IP Phone \u2022 FCH1813A0G \u2022 Checked out to Mary Ndabari",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -103,7 +107,8 @@
       "warranty": "",
       "id": "asset-1783671525691",
       "lastModified": "2026-07-10T08:18:45.691Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FOC1601YHF6",
@@ -115,7 +120,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco",
       "category": "switch",
-      "description": "Cisco Switch • FOC1601YHF6",
+      "description": "Cisco Switch \u2022 FOC1601YHF6",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -124,7 +129,8 @@
       "warranty": "",
       "id": "asset-1783671525691",
       "lastModified": "2026-07-10T08:18:45.691Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FOC1601Y1FQ",
@@ -136,7 +142,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco",
       "category": "switch",
-      "description": "Cisco Switch • FOC1601Y1FQ",
+      "description": "Cisco Switch \u2022 FOC1601Y1FQ",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -145,7 +151,8 @@
       "warranty": "",
       "id": "asset-1783671525691",
       "lastModified": "2026-07-10T08:18:45.691Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FCH13238W2A",
@@ -157,7 +164,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco",
       "category": "ip-phone",
-      "description": "Cisco IP Phone 7911 • FCH13238W2A • Checked out to Luiza Moran",
+      "description": "Cisco IP Phone 7911 \u2022 FCH13238W2A \u2022 Checked out to Luiza Moran",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -166,7 +173,8 @@
       "warranty": "",
       "id": "asset-1783671525692",
       "lastModified": "2026-07-10T08:18:45.692Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CNS217G1A7",
@@ -178,7 +186,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP Monitor",
       "category": "monitor",
-      "description": "HP LV2011 • CNS217G1A7 • Checked out to Luiza Moran",
+      "description": "HP LV2011 \u2022 CNS217G1A7 \u2022 Checked out to Luiza Moran",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -187,7 +195,8 @@
       "warranty": "",
       "id": "asset-1783671525692",
       "lastModified": "2026-07-10T08:18:45.692Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521600-9",
@@ -199,7 +208,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP Keyboard",
       "category": "keyboard",
-      "description": "HP PR1101U • Checked out to Luiza Moran",
+      "description": "HP PR1101U \u2022 Checked out to Luiza Moran",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -208,7 +217,8 @@
       "warranty": "",
       "id": "asset-1783671525692",
       "lastModified": "2026-07-10T08:18:45.692Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "PSA1023013781",
@@ -220,7 +230,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP Mouse",
       "category": "mouse",
-      "description": "HP MODGUO • PSA1023013781 • Checked out to Luiza Moran",
+      "description": "HP MODGUO \u2022 PSA1023013781 \u2022 Checked out to Luiza Moran",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -229,7 +239,8 @@
       "warranty": "",
       "id": "asset-1783671525693",
       "lastModified": "2026-07-10T08:18:45.693Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "NDB-BUS-000",
@@ -241,7 +252,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "NRB-BUS-000",
       "category": "cpu",
-      "description": "HP Pro 3120 • CZC0340858 • Checked out to Luiza Moran",
+      "description": "HP Pro 3120 \u2022 CZC0340858 \u2022 Checked out to Luiza Moran",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -250,7 +261,8 @@
       "warranty": "",
       "id": "asset-1783671525693",
       "lastModified": "2026-07-10T08:18:45.693Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CNC218FKFR",
@@ -262,7 +274,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP LV2011 • CNC218FKFR • Checked out to Doreen",
+      "description": "HP LV2011 \u2022 CNC218FKFR \u2022 Checked out to Doreen",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -271,7 +283,8 @@
       "warranty": "",
       "id": "asset-1783671525693",
       "lastModified": "2026-07-10T08:18:45.693Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "TRF40701T2",
@@ -283,7 +296,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "NRB-BUS-000",
       "category": "cpu",
-      "description": "HP Pro 3500 • TRF40701T2 • Checked out to Doreen",
+      "description": "HP Pro 3500 \u2022 TRF40701T2 \u2022 Checked out to Doreen",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -292,7 +305,8 @@
       "warranty": "",
       "id": "asset-1783671525694",
       "lastModified": "2026-07-10T08:18:45.694Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521600-14",
@@ -304,7 +318,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "PR1101U • Checked out to Doreen",
+      "description": "PR1101U \u2022 Checked out to Doreen",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -313,7 +327,8 @@
       "warranty": "",
       "id": "asset-1783671525694",
       "lastModified": "2026-07-10T08:18:45.694Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521600-15",
@@ -325,7 +340,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Mouse",
       "category": "mouse",
-      "description": "HP • Checked out to Doreen",
+      "description": "HP \u2022 Checked out to Doreen",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -334,7 +349,8 @@
       "warranty": "",
       "id": "asset-1783671525694",
       "lastModified": "2026-07-10T08:18:45.694Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "0023EB3EAD0",
@@ -346,7 +362,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco IP Phone 7940",
       "category": "ip-phone",
-      "description": "Cisco IP Phone 7940 • 0023EB3EAD0 • Checked out to Doreen",
+      "description": "Cisco IP Phone 7940 \u2022 0023EB3EAD0 \u2022 Checked out to Doreen",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -355,7 +371,8 @@
       "warranty": "",
       "id": "asset-1783671525695",
       "lastModified": "2026-07-10T08:18:45.695Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CZC0340877",
@@ -367,7 +384,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP Pro 3120",
       "category": "cpu",
-      "description": "HP Pro 3120 • CZC0340877 • Checked out to Moses Kithigi",
+      "description": "HP Pro 3120 \u2022 CZC0340877 \u2022 Checked out to Moses Kithigi",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -376,7 +393,8 @@
       "warranty": "",
       "id": "asset-1783671525695",
       "lastModified": "2026-07-10T08:18:45.695Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CZC02102HH",
@@ -388,7 +406,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "NRB-Bus 100",
       "category": "cpu",
-      "description": "HP Pro 3010 • CZC02102HH • Checked out to Isaac Machenje",
+      "description": "HP Pro 3010 \u2022 CZC02102HH \u2022 Checked out to Isaac Machenje",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -397,7 +415,8 @@
       "warranty": "",
       "id": "asset-1783671525695",
       "lastModified": "2026-07-10T08:18:45.695Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "HOAHHXQBRX",
@@ -409,7 +428,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "HP PR1101U • HOAHHXQBRX • Checked out to Isaac Machenje",
+      "description": "HP PR1101U \u2022 HOAHHXQBRX \u2022 Checked out to Isaac Machenje",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -418,7 +437,8 @@
       "warranty": "",
       "id": "asset-1783671525695",
       "lastModified": "2026-07-10T08:18:45.695Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "505062-001",
@@ -430,7 +450,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Mouse",
       "category": "mouse",
-      "description": "HP MODGUO • 505062-001 • Checked out to Isaac Machenje",
+      "description": "HP MODGUO \u2022 505062-001 \u2022 Checked out to Isaac Machenje",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -439,7 +459,8 @@
       "warranty": "",
       "id": "asset-1783671525696",
       "lastModified": "2026-07-10T08:18:45.696Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FCH1606BW2J",
@@ -451,7 +472,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco IP Phone",
       "category": "ip-phone",
-      "description": "Cisco IP Phone 7942 • FCH1606BW2J • Checked out to Isaac Machenje",
+      "description": "Cisco IP Phone 7942 \u2022 FCH1606BW2J \u2022 Checked out to Isaac Machenje",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -460,7 +481,8 @@
       "warranty": "",
       "id": "asset-1783671525696",
       "lastModified": "2026-07-10T08:18:45.696Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CZC913H60Y",
@@ -472,7 +494,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP Compaq 8200",
       "category": "cpu",
-      "description": "HP Compaq 8200 • CZC913H60Y",
+      "description": "HP Compaq 8200 \u2022 CZC913H60Y",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -481,7 +503,8 @@
       "warranty": "",
       "id": "asset-1783671525696",
       "lastModified": "2026-07-10T08:18:45.696Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CNC850Q93P",
@@ -493,7 +516,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP LE1851w • CNC850Q93P",
+      "description": "HP LE1851w \u2022 CNC850Q93P",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -502,7 +525,8 @@
       "warranty": "",
       "id": "asset-1783671525697",
       "lastModified": "2026-07-10T08:18:45.697Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521600-24",
@@ -523,7 +547,8 @@
       "warranty": "",
       "id": "asset-1783671525697",
       "lastModified": "2026-07-10T08:18:45.697Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521600-25",
@@ -544,7 +569,8 @@
       "warranty": "",
       "id": "asset-1783671525697",
       "lastModified": "2026-07-10T08:18:45.697Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CZC01161Z",
@@ -556,7 +582,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP Pro 3010",
       "category": "cpu",
-      "description": "HP Pro 3010 • CZC01161Z • Checked out to Jane Munga",
+      "description": "HP Pro 3010 \u2022 CZC01161Z \u2022 Checked out to Jane Munga",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -565,7 +591,8 @@
       "warranty": "",
       "id": "asset-1783671525697",
       "lastModified": "2026-07-10T08:18:45.697Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CNC850Q8KA",
@@ -577,7 +604,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor HP 19",
       "category": "monitor",
-      "description": "HP LE1851w • CNC850Q8KA • Checked out to Jane Munga",
+      "description": "HP LE1851w \u2022 CNC850Q8KA \u2022 Checked out to Jane Munga",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -586,7 +613,8 @@
       "warranty": "",
       "id": "asset-1783671525698",
       "lastModified": "2026-07-10T08:18:45.698Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "HOAHHYQ2AV",
@@ -598,7 +626,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "HP PR1101U • HOAHHYQ2AV • Checked out to Jane Munga",
+      "description": "HP PR1101U \u2022 HOAHHYQ2AV \u2022 Checked out to Jane Munga",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -607,7 +635,8 @@
       "warranty": "",
       "id": "asset-1783671525698",
       "lastModified": "2026-07-10T08:18:45.698Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521600-29",
@@ -619,7 +648,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Mouse",
       "category": "mouse",
-      "description": "HP • Checked out to Jane Munga",
+      "description": "HP \u2022 Checked out to Jane Munga",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -628,7 +657,8 @@
       "warranty": "",
       "id": "asset-1783671525699",
       "lastModified": "2026-07-10T08:18:45.699Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521600-30",
@@ -640,7 +670,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco IP Phone",
       "category": "ip-phone",
-      "description": "IP Phone 7911 • Checked out to Jane Munga",
+      "description": "IP Phone 7911 \u2022 Checked out to Jane Munga",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -649,7 +679,8 @@
       "warranty": "",
       "id": "asset-1783671525700",
       "lastModified": "2026-07-10T08:18:45.700Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CZC0208FNH",
@@ -661,7 +692,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP",
       "category": "cpu",
-      "description": "HP Pro 3010 • CZC0208FNH • Checked out to Dr Vivian",
+      "description": "HP Pro 3010 \u2022 CZC0208FNH \u2022 Checked out to Dr Vivian",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -670,7 +701,8 @@
       "warranty": "",
       "id": "asset-1783671525700",
       "lastModified": "2026-07-10T08:18:45.700Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521600-32",
@@ -682,7 +714,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "HP PR1101U • Checked out to Dr Vivian",
+      "description": "HP PR1101U \u2022 Checked out to Dr Vivian",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -691,7 +723,8 @@
       "warranty": "",
       "id": "asset-1783671525701",
       "lastModified": "2026-07-10T08:18:45.701Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521601-33",
@@ -703,7 +736,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Mouse",
       "category": "mouse",
-      "description": "HP MODGUO • Checked out to Dr Vivian",
+      "description": "HP MODGUO \u2022 Checked out to Dr Vivian",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -712,7 +745,8 @@
       "warranty": "",
       "id": "asset-1783671525701",
       "lastModified": "2026-07-10T08:18:45.701Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "3CQ0322BVN",
@@ -724,7 +758,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP S2031a • 3CQ0322BVN • Checked out to Dr Vivian",
+      "description": "HP S2031a \u2022 3CQ0322BVN \u2022 Checked out to Dr Vivian",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -733,7 +767,8 @@
       "warranty": "",
       "id": "asset-1783671525701",
       "lastModified": "2026-07-10T08:18:45.701Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521601-35",
@@ -745,7 +780,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco IP Phone",
       "category": "ip-phone",
-      "description": "IP Phone 7911 • Checked out to Dr Vivian",
+      "description": "IP Phone 7911 \u2022 Checked out to Dr Vivian",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -754,7 +789,8 @@
       "warranty": "",
       "id": "asset-1783671525702",
       "lastModified": "2026-07-10T08:18:45.702Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CZC023683V",
@@ -766,7 +802,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "NRB-BUSMG027",
       "category": "cpu",
-      "description": "HP Pro 3120 • CZC023683V • Checked out to Antony",
+      "description": "HP Pro 3120 \u2022 CZC023683V \u2022 Checked out to Antony",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -775,7 +811,8 @@
       "warranty": "",
       "id": "asset-1783671525703",
       "lastModified": "2026-07-10T08:18:45.703Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "BAUXHOAHH22",
@@ -787,7 +824,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "HP • BAUXHOAHH22 • Checked out to Antony",
+      "description": "HP \u2022 BAUXHOAHH22 \u2022 Checked out to Antony",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -796,7 +833,8 @@
       "warranty": "",
       "id": "asset-1783671525703",
       "lastModified": "2026-07-10T08:18:45.703Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CPA3K038Y",
@@ -808,7 +846,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Mouse",
       "category": "mouse",
-      "description": "HP • CPA3K038Y • Checked out to Antony",
+      "description": "HP \u2022 CPA3K038Y \u2022 Checked out to Antony",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -817,7 +855,8 @@
       "warranty": "",
       "id": "asset-1783671525703",
       "lastModified": "2026-07-10T08:18:45.703Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "3CQ0322BVB",
@@ -829,7 +868,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP S2031a • 3CQ0322BVB • Checked out to Antony",
+      "description": "HP S2031a \u2022 3CQ0322BVB \u2022 Checked out to Antony",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -838,7 +877,8 @@
       "warranty": "",
       "id": "asset-1783671525704",
       "lastModified": "2026-07-10T08:18:45.704Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FCH12248S8J",
@@ -850,7 +890,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco Phone",
       "category": "ip-phone",
-      "description": "Cisco IP Phone 7911 • FCH12248S8J • Checked out to Antony",
+      "description": "Cisco IP Phone 7911 \u2022 FCH12248S8J \u2022 Checked out to Antony",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -859,7 +899,8 @@
       "warranty": "",
       "id": "asset-1783671525704",
       "lastModified": "2026-07-10T08:18:45.704Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CZC82865QC",
@@ -871,7 +912,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP",
       "category": "cpu",
-      "description": "HP • CZC82865QC • Checked out to Doreen",
+      "description": "HP \u2022 CZC82865QC \u2022 Checked out to Doreen",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -880,7 +921,8 @@
       "warranty": "",
       "id": "asset-1783671525704",
       "lastModified": "2026-07-10T08:18:45.704Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FCH15089K1Y",
@@ -892,7 +934,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco IP Phone",
       "category": "ip-phone",
-      "description": "Cisco • FCH15089K1Y • Checked out to Doreen",
+      "description": "Cisco \u2022 FCH15089K1Y \u2022 Checked out to Doreen",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -901,7 +943,8 @@
       "warranty": "",
       "id": "asset-1783671525705",
       "lastModified": "2026-07-10T08:18:45.705Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "PR1106",
@@ -913,7 +956,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "HP • PR1106 • Checked out to Doreen",
+      "description": "HP \u2022 PR1106 \u2022 Checked out to Doreen",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -922,7 +965,8 @@
       "warranty": "",
       "id": "asset-1783671525705",
       "lastModified": "2026-07-10T08:18:45.705Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "3CQ0322BWD",
@@ -934,7 +978,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP S2031a • 3CQ0322BWD • Checked out to Doreen",
+      "description": "HP S2031a \u2022 3CQ0322BWD \u2022 Checked out to Doreen",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -943,7 +987,8 @@
       "warranty": "",
       "id": "asset-1783671525705",
       "lastModified": "2026-07-10T08:18:45.705Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CZC82965JY",
@@ -955,7 +1000,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP Compaq",
       "category": "cpu",
-      "description": "HP Compaq • CZC82965JY • Checked out to Kiama",
+      "description": "HP Compaq \u2022 CZC82965JY \u2022 Checked out to Kiama",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -964,7 +1009,8 @@
       "warranty": "",
       "id": "asset-1783671525706",
       "lastModified": "2026-07-10T08:18:45.706Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "PR1108",
@@ -976,7 +1022,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "HP • PR1108 • Checked out to Kiama",
+      "description": "HP \u2022 PR1108 \u2022 Checked out to Kiama",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -985,7 +1031,8 @@
       "warranty": "",
       "id": "asset-1783671525706",
       "lastModified": "2026-07-10T08:18:45.706Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CNC030028C",
@@ -997,7 +1044,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP S2031a • CNC030028C • Checked out to Kiama",
+      "description": "HP S2031a \u2022 CNC030028C \u2022 Checked out to Kiama",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1006,7 +1053,8 @@
       "warranty": "",
       "id": "asset-1783671525706",
       "lastModified": "2026-07-10T08:18:45.706Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "80215-4048M",
@@ -1018,7 +1066,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Dell",
       "category": "cpu",
-      "description": "Dell • 80215-4048M • Checked out to Barbara",
+      "description": "Dell \u2022 80215-4048M \u2022 Checked out to Barbara",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1027,7 +1075,8 @@
       "warranty": "",
       "id": "asset-1783671525707",
       "lastModified": "2026-07-10T08:18:45.707Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521601-49",
@@ -1039,7 +1088,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP L1710 • Checked out to Barbara",
+      "description": "HP L1710 \u2022 Checked out to Barbara",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1048,7 +1097,8 @@
       "warranty": "",
       "id": "asset-1783671525707",
       "lastModified": "2026-07-10T08:18:45.707Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CN0U786581",
@@ -1060,7 +1110,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "Dell • CN0U786581 • Checked out to Barbara",
+      "description": "Dell \u2022 CN0U786581 \u2022 Checked out to Barbara",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1069,7 +1119,8 @@
       "warranty": "",
       "id": "asset-1783671525707",
       "lastModified": "2026-07-10T08:18:45.707Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FCH13238W4N",
@@ -1081,7 +1132,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco IP Phone",
       "category": "ip-phone",
-      "description": "Cisco IP Phone 7911 • FCH13238W4N • Checked out to Barbara",
+      "description": "Cisco IP Phone 7911 \u2022 FCH13238W4N \u2022 Checked out to Barbara",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1090,7 +1141,8 @@
       "warranty": "",
       "id": "asset-1783671525708",
       "lastModified": "2026-07-10T08:18:45.708Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CNC850Q8LQ",
@@ -1102,7 +1154,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP LE1851w • CNC850Q8LQ • Checked out to Moses Kithigi",
+      "description": "HP LE1851w \u2022 CNC850Q8LQ \u2022 Checked out to Moses Kithigi",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1111,7 +1163,8 @@
       "warranty": "",
       "id": "asset-1783671525708",
       "lastModified": "2026-07-10T08:18:45.708Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "BAUXHOAHH212O2",
@@ -1123,7 +1176,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "PR1101U • BAUXHOAHH212O2 • Checked out to Moses Kithigi",
+      "description": "PR1101U \u2022 BAUXHOAHH212O2 \u2022 Checked out to Moses Kithigi",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1132,7 +1185,8 @@
       "warranty": "",
       "id": "asset-1783671525709",
       "lastModified": "2026-07-10T08:18:45.709Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "3CQ0322CDQ",
@@ -1144,7 +1198,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP S2031a • 3CQ0322CDQ • Checked out to Moses Kithigi",
+      "description": "HP S2031a \u2022 3CQ0322CDQ \u2022 Checked out to Moses Kithigi",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1153,7 +1207,8 @@
       "warranty": "",
       "id": "asset-1783671525709",
       "lastModified": "2026-07-10T08:18:45.709Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "TRF2110522",
@@ -1165,7 +1220,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "NRB-BUSMG1000",
       "category": "cpu",
-      "description": "HP Pro 3400 • TRF2110522 • Checked out to Mary Mbiti",
+      "description": "HP Pro 3400 \u2022 TRF2110522 \u2022 Checked out to Mary Mbiti",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1174,7 +1229,8 @@
       "warranty": "",
       "id": "asset-1783671525709",
       "lastModified": "2026-07-10T08:18:45.709Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521601-57",
@@ -1186,7 +1242,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "PR1101U • Checked out to Mary Mbiti",
+      "description": "PR1101U \u2022 Checked out to Mary Mbiti",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1195,7 +1251,8 @@
       "warranty": "",
       "id": "asset-1783671525711",
       "lastModified": "2026-07-10T08:18:45.711Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "PSA1020049802",
@@ -1207,7 +1264,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Mouse",
       "category": "mouse",
-      "description": "HP • PSA1020049802 • Checked out to Mary Mbiti",
+      "description": "HP \u2022 PSA1020049802 \u2022 Checked out to Mary Mbiti",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1216,7 +1273,8 @@
       "warranty": "",
       "id": "asset-1783671525711",
       "lastModified": "2026-07-10T08:18:45.711Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FCH1227HETT",
@@ -1228,7 +1286,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco IP Phone",
       "category": "ip-phone",
-      "description": "IP Phone 7911 • FCH1227HETT • Checked out to Mary Mbiti",
+      "description": "IP Phone 7911 \u2022 FCH1227HETT \u2022 Checked out to Mary Mbiti",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1237,7 +1295,8 @@
       "warranty": "",
       "id": "asset-1783671525712",
       "lastModified": "2026-07-10T08:18:45.712Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FCH12249DHB",
@@ -1249,7 +1308,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco IP Phone",
       "category": "ip-phone",
-      "description": "IP Phone 7911 • FCH12249DHB • Checked out to James Nzili",
+      "description": "IP Phone 7911 \u2022 FCH12249DHB \u2022 Checked out to James Nzili",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1258,7 +1317,8 @@
       "warranty": "",
       "id": "asset-1783671525712",
       "lastModified": "2026-07-10T08:18:45.712Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521601-61",
@@ -1270,7 +1330,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Mouse",
       "category": "mouse",
-      "description": "HP • Checked out to James Nzili",
+      "description": "HP \u2022 Checked out to James Nzili",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1279,7 +1339,8 @@
       "warranty": "",
       "id": "asset-1783671525713",
       "lastModified": "2026-07-10T08:18:45.713Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "BAUXH0AHH2233",
@@ -1291,7 +1352,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Keyboard",
       "category": "keyboard",
-      "description": "PR 1101U • BAUXH0AHH2233 • Checked out to James Nzili",
+      "description": "PR 1101U \u2022 BAUXH0AHH2233 \u2022 Checked out to James Nzili",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1300,7 +1361,8 @@
       "warranty": "",
       "id": "asset-1783671525713",
       "lastModified": "2026-07-10T08:18:45.713Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "3CQ0264D1K",
@@ -1312,7 +1374,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP S2031a • 3CQ0264D1K • Checked out to James Nzili",
+      "description": "HP S2031a \u2022 3CQ0264D1K \u2022 Checked out to James Nzili",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1321,7 +1383,8 @@
       "warranty": "",
       "id": "asset-1783671525714",
       "lastModified": "2026-07-10T08:18:45.714Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CZC0369KP",
@@ -1333,7 +1396,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP Pro 3120",
       "category": "cpu",
-      "description": "HP Pro 3120 • CZC0369KP • Checked out to James Nzili",
+      "description": "HP Pro 3120 \u2022 CZC0369KP \u2022 Checked out to James Nzili",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1342,7 +1405,8 @@
       "warranty": "",
       "id": "asset-1783671525714",
       "lastModified": "2026-07-10T08:18:45.714Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "CNC218FKXF",
@@ -1354,7 +1418,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Monitor",
       "category": "monitor",
-      "description": "HP LV2011 • CNC218FKXF • Checked out to Samuel Muli",
+      "description": "HP LV2011 \u2022 CNC218FKXF \u2022 Checked out to Samuel Muli",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1363,7 +1427,8 @@
       "warranty": "",
       "id": "asset-1783671525715",
       "lastModified": "2026-07-10T08:18:45.715Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "0304424092330",
@@ -1375,7 +1440,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Acer",
       "category": "keyboard",
-      "description": "Acer • 0304424092330 • Checked out to Samuel Muli",
+      "description": "Acer \u2022 0304424092330 \u2022 Checked out to Samuel Muli",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1384,7 +1449,8 @@
       "warranty": "",
       "id": "asset-1783671525715",
       "lastModified": "2026-07-10T08:18:45.715Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "AUTO-1783671521601-67",
@@ -1396,7 +1462,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Mouse",
       "category": "mouse",
-      "description": "HP • Checked out to Samuel Muli",
+      "description": "HP \u2022 Checked out to Samuel Muli",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1405,7 +1471,8 @@
       "warranty": "",
       "id": "asset-1783671525716",
       "lastModified": "2026-07-10T08:18:45.716Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "TRF3250N6N",
@@ -1417,7 +1484,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "HP Pro 3500",
       "category": "cpu",
-      "description": "HP Pro 3500 • TRF3250N6N • Checked out to Samuel Muli",
+      "description": "HP Pro 3500 \u2022 TRF3250N6N \u2022 Checked out to Samuel Muli",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1426,7 +1493,8 @@
       "warranty": "",
       "id": "asset-1783671525716",
       "lastModified": "2026-07-10T08:18:45.716Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     },
     {
       "assetTag": "FCH1216FHQY",
@@ -1438,7 +1506,7 @@
       "sourceFileName": "Asset_Inventory_Log (1).xlsx",
       "name": "Cisco IP Phone",
       "category": "ip-phone",
-      "description": "IP Phone 7911 • FCH1216FHQY • Checked out to Samuel Muli",
+      "description": "IP Phone 7911 \u2022 FCH1216FHQY \u2022 Checked out to Samuel Muli",
       "location": "15th Floor",
       "status": "working",
       "purchaseDate": "2026-07-10",
@@ -1447,7 +1515,8 @@
       "warranty": "",
       "id": "asset-1783671525717",
       "lastModified": "2026-07-10T08:18:45.717Z",
-      "createdBy": "admin@kemu.ac.ke"
+      "createdBy": "admin@kemu.ac.ke",
+      "campusId": "nairobi"
     }
   ],
   "maintenanceRecords": [],

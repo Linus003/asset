@@ -411,6 +411,7 @@ export function saveImportedAssets(assets: Asset[], fileName: string): ImportHis
       purchasePrice: asset.purchasePrice,
       supplier: asset.supplier,
       warranty: asset.warranty,
+      campusId: asset.campusId,
     });
   });
 

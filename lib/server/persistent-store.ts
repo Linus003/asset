@@ -1,6 +1,12 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { Asset, AssetMovement, ImportHistory, MaintenanceRecord, User } from '@/lib/types';
+import { Asset, AssetMovement, CampusId, ImportHistory, MaintenanceRecord, User } from '@/lib/types';
+
+const CAMPUS_IDS: Exclude<CampusId, 'all'>[] = ['nairobi', 'mombasa', 'meru-town'];
+
+function normalizeCampusId(campusId?: string): Exclude<CampusId, 'all'> {
+  return CAMPUS_IDS.includes(campusId as Exclude<CampusId, 'all'>) ? campusId as Exclude<CampusId, 'all'> : 'nairobi';
+}
 
 export interface PersistedStore {
   assets: Asset[];
@@ -55,7 +61,7 @@ export async function writeStore(store: Partial<PersistedStore>): Promise<Persis
 function normalizeStore(store: Partial<PersistedStore>): PersistedStore {
   const users = Array.isArray(store.users) && store.users.length ? store.users : defaultUsers;
   return {
-    assets: Array.isArray(store.assets) ? store.assets : [],
+    assets: Array.isArray(store.assets) ? store.assets.map((asset) => ({ ...asset, campusId: normalizeCampusId(asset.campusId) })) : [],
     maintenanceRecords: Array.isArray(store.maintenanceRecords) ? store.maintenanceRecords : [],
     importHistories: Array.isArray(store.importHistories) ? store.importHistories : [],
     movements: Array.isArray(store.movements) ? store.movements : [],

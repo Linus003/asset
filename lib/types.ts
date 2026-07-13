@@ -2,6 +2,14 @@
 
 export type UserRole = 'admin' | 'staff' | 'viewer';
 
+export type CampusId = 'all' | 'nairobi' | 'mombasa' | 'meru-town';
+
+export interface Campus {
+  id: Exclude<CampusId, 'all'>;
+  name: string;
+  description: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -33,6 +41,7 @@ export interface Asset {
   warranty: string;
   lastModified: string;
   createdBy: string;
+  campusId?: Exclude<CampusId, 'all'>;
   qrCode?: string;
 }
 

@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
-import { deleteAsset, deleteAssets, getAssets, initializeStore, searchAssets, subscribeToStoreChanges } from '@/lib/store';
-import { Asset } from '@/lib/types';
+import { deleteAsset, deleteAssets, getAssets, getCampuses, getSelectedCampusId, initializeStore, searchAssets, setSelectedCampusId, subscribeToStoreChanges, updateAsset } from '@/lib/store';
+import { Asset, AssetCategory, AssetStatus, CampusId } from '@/lib/types';
 import { Plus, Edit2, Trash2, ChevronDown, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
@@ -18,12 +18,15 @@ export default function AssetsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedCampusId, setCampusState] = useState<CampusId>('nairobi');
   
   const [editFormData, setEditFormData] = useState<Partial<Asset>>({});
 
   useEffect(() => {
     initializeStore();
+    setCampusState(getSelectedCampusId());
     const refreshAssets = () => {
+      setCampusState(getSelectedCampusId());
       const allAssets = getAssets();
       setAssets(allAssets);
       setFilteredAssets(searchAssets(searchQuery, { category: selectedCategory || undefined, location: selectedLocation || undefined, status: selectedStatus || undefined }));
@@ -79,12 +82,7 @@ export default function AssetsPage() {
     const asset = allAssets.find(a => a.id === id);
     if (!asset) return;
     
-    const updatedAsset = { ...asset, ...editFormData };
-    const updatedAssets = allAssets.map(a => 
-      a.id === id ? updatedAsset : a
-    );
-    
-    localStorage.setItem('assets', JSON.stringify(updatedAssets));
+    updateAsset(id, { ...editFormData });
     
     setEditingId(null);
     const refreshed = getAssets();
@@ -94,6 +92,16 @@ export default function AssetsPage() {
       location: selectedLocation || undefined,
       status: selectedStatus || undefined,
     }));
+  };
+
+  const campusOptions = [{ id: 'all' as CampusId, name: 'All Campuses' }, ...getCampuses().map((campus) => ({ id: campus.id as CampusId, name: campus.name }))];
+
+  const handleCampusChange = (campusId: CampusId) => {
+    setSelectedCampusId(campusId);
+    setCampusState(campusId);
+    setSelectedIds([]);
+    setAssets(getAssets());
+    setFilteredAssets(searchAssets(searchQuery, { category: selectedCategory || undefined, location: selectedLocation || undefined, status: selectedStatus || undefined }));
   };
 
   return (
@@ -106,6 +114,9 @@ export default function AssetsPage() {
           description="Manage and track all your physical assets"
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
+          selectedCampusId={selectedCampusId}
+          onCampusChange={handleCampusChange}
+          campusOptions={campusOptions}
         />
 
         <div className="flex-1 p-6 space-y-6">
@@ -233,7 +244,7 @@ export default function AssetsPage() {
                           {editingId === asset.id ? (
                             <select
                               value={editFormData.category || ''}
-                              onChange={(e) => setEditFormData({...editFormData, category: e.target.value})}
+                              onChange={(e) => setEditFormData({...editFormData, category: e.target.value as AssetCategory})}
                               className="w-full px-2 py-1 bg-background border border-border rounded text-foreground capitalize"
                             >
                               {categories.map((cat) => (
@@ -268,7 +279,7 @@ export default function AssetsPage() {
                           {editingId === asset.id ? (
                             <select
                               value={editFormData.status || ''}
-                              onChange={(e) => setEditFormData({...editFormData, status: e.target.value})}
+                              onChange={(e) => setEditFormData({...editFormData, status: e.target.value as AssetStatus})}
                               className="w-full px-2 py-1 bg-background border border-border rounded text-foreground capitalize"
                             >
                               {statuses.map((status) => (
