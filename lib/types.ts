@@ -2,7 +2,7 @@
 
 export type UserRole = 'admin' | 'staff' | 'viewer';
 
-export type CampusId = 'all' | 'nairobi' | 'mombasa' | 'meru-town';
+export type CampusId = 'all' | 'nairobi' | 'mombasa' | 'meru-town' | 'meru-main';
 
 export interface Campus {
   id: Exclude<CampusId, 'all'>;

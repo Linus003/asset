@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Upload, Settings, Home, Package, Wrench, User } from 'lucide-react';
+import { Upload, Settings, Home, Package, Wrench, User, FileText } from 'lucide-react';
 import { getCurrentUser, getUsers, initializeStore, subscribeToStoreChanges, switchUser } from '@/lib/store';
 import { useEffect, useState } from 'react';
 import { User as UserType } from '@/lib/types';
@@ -31,6 +31,7 @@ export function Sidebar() {
     { href: '/assets', label: 'Assets', icon: Package },
     { href: '/import', label: 'Import Assets', icon: Upload },
     { href: '/maintenance', label: 'Maintenance', icon: Wrench },
+    { href: '/reports', label: 'Reports & Search', icon: FileText },
   ];
 
   const adminItems = [
