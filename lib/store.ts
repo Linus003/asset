@@ -1,10 +1,33 @@
 'use client';
 
-import { Asset, MaintenanceRecord, ImportHistory, AssetMovement, User, UserRole, DashboardMetrics } from './types';
+import { Asset, Campus, CampusId, MaintenanceRecord, ImportHistory, AssetMovement, User, UserRole, DashboardMetrics } from './types';
 
 const STORAGE_KEY = 'kemu-inventory-store-v1';
 const STORE_API_URL = '/api/store';
 const STORE_CHANGED_EVENT = 'kemu-inventory-store-changed';
+const CAMPUS_STORAGE_KEY = 'kemu-selected-campus-v1';
+
+export const CAMPUSES: Campus[] = [
+  { id: 'nairobi', name: 'Nairobi Campus', description: 'Main Nairobi asset profile' },
+  { id: 'mombasa', name: 'Mombasa Campus', description: 'Coastal campus asset profile' },
+  { id: 'meru-town', name: 'Meru Town Campus', description: 'Meru Town campus asset profile' },
+];
+
+let selectedCampusId: CampusId = 'nairobi';
+
+function normalizeCampusId(campusId?: string): Exclude<CampusId, 'all'> {
+  return CAMPUSES.some((campus) => campus.id === campusId) ? campusId as Exclude<CampusId, 'all'> : 'nairobi';
+}
+
+function ensureAssetCampuses(assetList: Asset[]): Asset[] {
+  return assetList.map((asset) => ({ ...asset, campusId: normalizeCampusId(asset.campusId) }));
+}
+
+function getScopedAssets(assetList = assets): Asset[] {
+  const normalizedAssets = ensureAssetCampuses(assetList);
+  if (selectedCampusId === 'all') return normalizedAssets;
+  return normalizedAssets.filter((asset) => asset.campusId === selectedCampusId);
+}
 
 // Browser-persisted in-memory data store
 let initialized = false;
@@ -17,7 +40,7 @@ let users: User[] = [];
 
 function getStoreSnapshot() {
   return {
-    assets,
+    assets: ensureAssetCampuses(assets),
     maintenanceRecords,
     importHistories,
     movements,
@@ -27,7 +50,7 @@ function getStoreSnapshot() {
 }
 
 function applyStoreSnapshot(snapshot: Partial<ReturnType<typeof getStoreSnapshot>>) {
-  assets = snapshot.assets || [];
+  assets = ensureAssetCampuses(snapshot.assets || []);
   maintenanceRecords = snapshot.maintenanceRecords || [];
   importHistories = snapshot.importHistories || [];
   movements = snapshot.movements || [];
@@ -101,6 +124,7 @@ export function initializeStore() {
       try {
         const parsed = JSON.parse(savedStore);
         applyStoreSnapshot(parsed);
+        selectedCampusId = (window.localStorage.getItem(CAMPUS_STORAGE_KEY) as CampusId) || selectedCampusId;
         initialized = true;
         void hydrateFromServer();
         return;
@@ -120,7 +144,7 @@ export function initializeStore() {
   currentUser = users[0]; // Default to admin
 
   // Demo assets with assignedTo
-  assets = [
+  assets = ensureAssetCampuses([
     {
       id: 'asset-1',
       assetTag: 'TRF20905QQ',
@@ -201,7 +225,7 @@ export function initializeStore() {
       createdBy: 'admin@kemu.ac.ke',
       assignedTo: 'Peter Ochieng',
     },
-  ];
+  ]);
 
   // Demo maintenance records
   maintenanceRecords = [
@@ -248,12 +272,33 @@ export function initializeStore() {
 // ASSET OPERATIONS
 // ============================================
 
-export function getAssets(): Asset[] {
-  return [...assets];
+export function getCampuses(): Campus[] {
+  return [...CAMPUSES];
+}
+
+export function getSelectedCampusId(): CampusId {
+  return selectedCampusId;
+}
+
+export function setSelectedCampusId(campusId: CampusId): void {
+  selectedCampusId = campusId === 'all' || CAMPUSES.some((campus) => campus.id === campusId) ? campusId : 'nairobi';
+  if (typeof window !== 'undefined') window.localStorage.setItem(CAMPUS_STORAGE_KEY, selectedCampusId);
+  notifyStoreChanged();
+}
+
+export function getAssets(options?: { campusId?: CampusId }): Asset[] {
+  const campusId = options?.campusId ?? selectedCampusId;
+  const normalizedAssets = ensureAssetCampuses(assets);
+  if (campusId === 'all') return [...normalizedAssets];
+  return normalizedAssets.filter((asset) => asset.campusId === campusId);
+}
+
+export function getAllAssets(): Asset[] {
+  return getAssets({ campusId: 'all' });
 }
 
 export function getAssignedAssets(): Asset[] {
-  return assets.filter(a => a.assignedTo && a.assignedTo.trim() !== '');
+  return getScopedAssets().filter(a => a.assignedTo && a.assignedTo.trim() !== '');
 }
 
 export function getAssetById(id: string): Asset | undefined {
@@ -263,6 +308,7 @@ export function getAssetById(id: string): Asset | undefined {
 export function addAsset(asset: Omit<Asset, 'id' | 'lastModified' | 'createdBy'>): Asset {
   const newAsset: Asset = {
     ...asset,
+    campusId: normalizeCampusId(asset.campusId || (selectedCampusId === 'all' ? 'nairobi' : selectedCampusId)),
     id: `asset-${Date.now()}`,
     lastModified: new Date().toISOString(),
     createdBy: currentUser?.email || 'system',
@@ -404,7 +450,7 @@ export function getDashboardMetrics(): DashboardMetrics {
   const assetsByLocation: Record<string, number> = {};
   const valueByCategory: Record<string, number> = {};
 
-  assets.forEach(asset => {
+  getScopedAssets().forEach(asset => {
     assetsByCategory[asset.category] = (assetsByCategory[asset.category] || 0) + 1;
     assetsByLocation[asset.location] = (assetsByLocation[asset.location] || 0) + 1;
     valueByCategory[asset.category] = (valueByCategory[asset.category] || 0) + (asset.purchasePrice || 0);
@@ -416,17 +462,17 @@ export function getDashboardMetrics(): DashboardMetrics {
     .slice(0, 5);
 
   return {
-    totalAssets: assets.length,
-    activeAssets: assets.filter(a => a.status === 'active').length,
-    maintenanceAssets: assets.filter(a => a.status === 'maintenance').length,
+    totalAssets: getScopedAssets().length,
+    activeAssets: getScopedAssets().filter(a => a.status === 'active').length,
+    maintenanceAssets: getScopedAssets().filter(a => a.status === 'maintenance').length,
     assetsByCategory,
     assetsByLocation,
     upcomingMaintenance,
     recentImports: importHistories.slice(0, 5),
-    assignedAssets: assets.filter(a => Boolean(a.assignedTo?.trim())).length,
-    retiredAssets: assets.filter(a => a.status === 'retired' || a.status === 'lost').length,
-    missingSerials: assets.filter(a => !a.serialNo?.trim()).length,
-    missingTags: assets.filter(a => !a.assetTag?.trim()).length,
+    assignedAssets: getScopedAssets().filter(a => Boolean(a.assignedTo?.trim())).length,
+    retiredAssets: getScopedAssets().filter(a => a.status === 'retired' || a.status === 'lost').length,
+    missingSerials: getScopedAssets().filter(a => !a.serialNo?.trim()).length,
+    missingTags: getScopedAssets().filter(a => !a.assetTag?.trim()).length,
     valueByCategory,
   };
 }
@@ -438,7 +484,7 @@ export function getDashboardMetrics(): DashboardMetrics {
 export function searchAssets(query: string, filters?: { category?: string; location?: string; status?: string }): Asset[] {
   const lowerQuery = query.toLowerCase();
   
-  return assets.filter(asset => {
+  return getScopedAssets().filter(asset => {
     const matchesQuery = !query || 
       asset.name.toLowerCase().includes(lowerQuery) ||
       asset.assetTag.toLowerCase().includes(lowerQuery) ||

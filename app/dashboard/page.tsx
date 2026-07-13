@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
-import { getAssets, getAssignedAssets } from '@/lib/store';
-import { Asset } from '@/lib/types';
+import { getAssets, getAssignedAssets, getCampuses, getSelectedCampusId, initializeStore, setSelectedCampusId, subscribeToStoreChanges } from '@/lib/store';
+import { Asset, CampusId } from '@/lib/types';
 import {
   Users,
   UserCheck,
@@ -24,11 +24,18 @@ export default function DashboardPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [assignedAssets, setAssignedAssets] = useState<Asset[]>([]);
   const [showAssignments, setShowAssignments] = useState(false);
+  const [selectedCampusId, setCampusState] = useState<CampusId>('nairobi');
 
   useEffect(() => {
-    const all = getAssets();
-    setAssets(all);
-    setAssignedAssets(getAssignedAssets());
+    initializeStore();
+    const refreshAssets = () => {
+      setCampusState(getSelectedCampusId());
+      const all = getAssets();
+      setAssets(all);
+      setAssignedAssets(getAssignedAssets());
+    };
+    refreshAssets();
+    return subscribeToStoreChanges(refreshAssets);
   }, []);
 
   // Calculate metrics
@@ -59,6 +66,15 @@ export default function DashboardPage() {
 
   const assignmentsByPerson = getAssignmentsByPerson();
 
+  const campusOptions = [{ id: 'all' as CampusId, name: 'All Campuses' }, ...getCampuses().map((campus) => ({ id: campus.id as CampusId, name: campus.name }))];
+
+  const handleCampusChange = (campusId: CampusId) => {
+    setSelectedCampusId(campusId);
+    setCampusState(campusId);
+    setAssets(getAssets());
+    setAssignedAssets(getAssignedAssets());
+  };
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
@@ -69,6 +85,9 @@ export default function DashboardPage() {
           description="Overview of your asset inventory"
           searchValue=""
           onSearchChange={() => {}}
+          selectedCampusId={selectedCampusId}
+          onCampusChange={handleCampusChange}
+          campusOptions={campusOptions}
         />
 
         <div className="flex-1 p-6 space-y-6">
