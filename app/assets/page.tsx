@@ -70,6 +70,7 @@ export default function AssetsPage() {
       location: asset.location,
       status: asset.status,
       purchasePrice: asset.purchasePrice,
+    assignedTo: asset.assignedTo|| '',
     });
   };
 
@@ -201,6 +202,7 @@ export default function AssetsPage() {
                     <th className="text-left py-4 px-6 font-semibold text-foreground">Location</th>
                     <th className="text-left py-4 px-6 font-semibold text-foreground">Status</th>
                     <th className="text-left py-4 px-6 font-semibold text-foreground">Value</th>
+                    <th className="text-left py-4 px-6 font-semibold text-foreground">Assigned To</th>
                     <th className="text-center py-4 px-6 font-semibold text-foreground">Actions</th>
                   </tr>
                 </thead>
@@ -298,7 +300,25 @@ export default function AssetsPage() {
                             `$${asset.purchasePrice.toLocaleString()}`
                           )}
                         </td>
-                        
+                        <td className="py-4 px-6">
+  {editingId === asset.id ? (
+    <input
+      type="text"
+      value={editFormData.assignedTo || ''}
+      onChange={(e) => setEditFormData({...editFormData, assignedTo: e.target.value})}
+      className="w-full px-2 py-1 bg-background border border-border rounded text-foreground text-sm"
+      placeholder="Enter person's name"
+    />
+  ) : (
+    asset.assignedTo ? (
+      <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded text-xs">
+        {asset.assignedTo}
+      </span>
+    ) : (
+      <span className="text-muted-foreground text-xs">—</span>
+    )
+                        )}
+                        </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center justify-center gap-2">
                             {editingId === asset.id ? (

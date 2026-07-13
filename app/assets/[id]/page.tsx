@@ -132,6 +132,12 @@ export default function AssetDetailsPage() {
               editable={isEditing}
               onEdit={(value) => setEditData({ ...editData, supplier: value })}
             />
+          <InfoField
+                     label="Assigned To"
+    value={asset.assignedTo || 'Unassigned'}
+  editable={isEditing}
+  onEdit={(value) => setEditData({ ...editData, assignedTo: value === 'Unassigned' ? '' : value })}
+        /> 
             <InfoField
               label="Warranty"
               value={asset.warranty}

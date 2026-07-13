@@ -3,252 +3,283 @@
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
-import { initializeStore, getDashboardMetrics, subscribeToStoreChanges } from '@/lib/store';
-import { Package, AlertCircle, BarChart3, TrendingUp, ShieldCheck, Users, Wrench, MapPin } from 'lucide-react';
+import { getAssets, getAssignedAssets } from '@/lib/store';
+import { Asset } from '@/lib/types';
+import {
+  Users,
+  UserCheck,
+  Wrench,
+  MapPin,
+  DollarSign,
+  Shield,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  TrendingUp,
+  ClipboardCheck
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const [metrics, setMetrics] = useState(getDashboardMetrics());
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [assignedAssets, setAssignedAssets] = useState<Asset[]>([]);
+  const [showAssignments, setShowAssignments] = useState(false);
 
   useEffect(() => {
-    initializeStore();
-    const refreshMetrics = () => setMetrics(getDashboardMetrics());
-    refreshMetrics();
-    return subscribeToStoreChanges(refreshMetrics);
+    const all = getAssets();
+    setAssets(all);
+    setAssignedAssets(getAssignedAssets());
   }, []);
 
-  const totalValue = Object.values(metrics.valueByCategory).reduce((sum, value) => sum + value, 0);
-  const assignedAssets = metrics.assignedAssets;
-  const unassignedAssets = Math.max(metrics.totalAssets - assignedAssets, 0);
-  const complianceRate = metrics.totalAssets ? (((metrics.totalAssets - metrics.missingSerials) / metrics.totalAssets) * 100).toFixed(1) : '0.0';
+  // Calculate metrics
+  const totalAssets = assets.length;
+  const assignedCount = assignedAssets.length;
+  const unassignedCount = totalAssets - assignedCount;
+  const activeAssets = assets.filter(a => a.status === 'active').length;
+  const maintenanceAssets = assets.filter(a => a.status === 'maintenance').length;
+  const locations = new Set(assets.map(a => a.location)).size;
+  const totalValue = assets.reduce((sum, a) => sum + a.purchasePrice, 0);
+
+  // Get assets with serial numbers
+  const hasSerial = assets.filter(a => a.assetTag && a.assetTag.length > 0);
+  const serialCompliance = totalAssets > 0 ? Math.round((hasSerial.length / totalAssets) * 100) : 0;
+  const missingSerial = totalAssets - hasSerial.length;
+
+  // Group assignments by person
+  const getAssignmentsByPerson = () => {
+    const map: { [key: string]: Asset[] } = {};
+    assignedAssets.forEach(asset => {
+      if (asset.assignedTo) {
+        if (!map[asset.assignedTo]) map[asset.assignedTo] = [];
+        map[asset.assignedTo].push(asset);
+      }
+    });
+    return map;
+  };
+
+  const assignmentsByPerson = getAssignmentsByPerson();
 
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      
+
       <main className="flex-1 overflow-auto flex flex-col">
-        <Header 
-          title="Dashboard" 
-          description="Real-time KeMU asset and equipment inventory overview"
+        <Header
+          title="Dashboard"
+          description="Overview of your asset inventory"
+          searchValue=""
+          onSearchChange={() => {}}
         />
 
         <div className="flex-1 p-6 space-y-6">
-          {/* Key Metrics */}
+          {/* Stats Grid - Top Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard
-              label="Total Assets"
-              value={metrics.totalAssets}
-              icon={<Package className="w-6 h-6" />}
-              trend="+12% this month"
-              color="from-emerald-500 to-emerald-600"
-            />
-            <MetricCard
-              label="Active Assets"
-              value={metrics.activeAssets}
-              icon={<TrendingUp className="w-6 h-6" />}
-              trend={`${metrics.totalAssets ? ((metrics.activeAssets / metrics.totalAssets) * 100).toFixed(1) : '0.0'}% of total`}
-              color="from-blue-500 to-blue-600"
-            />
-            <MetricCard
-              label="In Maintenance"
-              value={metrics.maintenanceAssets}
-              icon={<AlertCircle className="w-6 h-6" />}
-              trend="Requires attention"
-              color="from-amber-500 to-amber-600"
-            />
-            <MetricCard
-              label="Locations"
-              value={Object.keys(metrics.assetsByLocation).length}
-              icon={<MapPin className="w-6 h-6" />}
-              trend="Campuses, offices, and labs"
-              color="from-purple-500 to-purple-600"
-            />
-          </div>
-
-
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            <InsightCard icon={<BarChart3 className="w-5 h-5" />} label="Asset Value" value={`KES ${totalValue.toLocaleString()}`} detail="Book value captured from imports and manual entries" />
-            <InsightCard icon={<Users className="w-5 h-5" />} label="Assigned Devices" value={assignedAssets.toString()} detail={`${unassignedAssets} assets still need a custodian`} />
-            <InsightCard icon={<ShieldCheck className="w-5 h-5" />} label="Serial Compliance" value={`${complianceRate}%`} detail={`${metrics.missingSerials} records missing serial numbers`} />
-            <InsightCard icon={<Wrench className="w-5 h-5" />} label="Lifecycle Risk" value={metrics.retiredAssets.toString()} detail="Retired or end-of-life equipment to replace" />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Assets by Category */}
-            <div className="lg:col-span-1 bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Assets by Category</h3>
-              <div className="space-y-3">
-                {Object.entries(metrics.assetsByCategory).map(([category, count]) => (
-                  <div key={category} className="flex items-center justify-between">
-                    <span className="text-muted-foreground capitalize">{category}</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-32 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full"
-                          style={{ width: `${metrics.totalAssets ? (count / metrics.totalAssets) * 100 : 0}%` }}
-                        />
-                      </div>
-                      <span className="text-foreground font-semibold w-8 text-right">{count}</span>
-                    </div>
-                  </div>
-                ))}
+            {/* Total Assets */}
+            <div className="bg-card border border-border rounded-lg p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Assets</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{totalAssets}</p>
+                </div>
+                <div className="p-2.5 bg-primary/10 rounded-lg">
+                  <Users className="w-5 h-5 text-primary" />
+                </div>
               </div>
+              <div className="flex items-center gap-1 mt-2 text-xs text-emerald-400">
+                <TrendingUp className="w-3 h-3" />
+                <span>+12% this month</span>
+              </div>
+            </div>
+
+            {/* Active Assets */}
+            <div className="bg-card border border-border rounded-lg p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Active Assets</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{activeAssets}</p>
+                </div>
+                <div className="p-2.5 bg-emerald-500/10 rounded-lg">
+                  <Shield className="w-5 h-5 text-emerald-400" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {totalAssets > 0 ? Math.round((activeAssets / totalAssets) * 100) : 0}% of total
+              </p>
+            </div>
+
+            {/* In Maintenance */}
+            <div className="bg-card border border-border rounded-lg p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">In Maintenance</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{maintenanceAssets}</p>
+                </div>
+                <div className="p-2.5 bg-amber-500/10 rounded-lg">
+                  <Wrench className="w-5 h-5 text-amber-400" />
+                </div>
+              </div>
+              <p className="text-xs text-amber-400 mt-2">Requires attention</p>
             </div>
 
             {/* Locations */}
-            <div className="lg:col-span-1 bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Top Locations</h3>
-              <div className="space-y-3">
-                {Object.entries(metrics.assetsByLocation)
-                  .sort((a, b) => b[1] - a[1])
-                  .slice(0, 5)
-                  .map(([location, count]) => (
-                    <div key={location} className="flex items-center justify-between">
-                      <span className="text-muted-foreground truncate">{location}</span>
-                      <span className="text-foreground font-semibold bg-secondary px-3 py-1 rounded-lg">{count}</span>
-                    </div>
-                  ))}
+            <div className="bg-card border border-border rounded-lg p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Locations</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{locations}</p>
+                </div>
+                <div className="p-2.5 bg-blue-500/10 rounded-lg">
+                  <MapPin className="w-5 h-5 text-blue-400" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Campuses, offices, and labs</p>
+            </div>
+          </div>
+
+          {/* Stats Grid - Bottom Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Asset Value */}
+            <div className="bg-card border border-border rounded-lg p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Asset Value</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">
+                    KES {totalValue.toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-2.5 bg-green-500/10 rounded-lg">
+                  <DollarSign className="w-5 h-5 text-green-400" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Book value captured from imports and manual entries</p>
+            </div>
+
+            {/* ✅ Assigned Devices - CLICKABLE */}
+            <div
+              className="bg-card border border-border rounded-lg p-5 cursor-pointer hover:bg-secondary/30 transition-colors"
+              onClick={() => setShowAssignments(!showAssignments)}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Assigned Devices</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{assignedCount}</p>
+                </div>
+                <div className="p-2.5 bg-emerald-500/10 rounded-lg">
+                  <UserCheck className="w-5 h-5 text-emerald-400" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-muted-foreground">
+                  {unassignedCount} assets still need a custodian
+                </p>
+                <span className="text-xs text-primary flex items-center gap-1">
+                  {showAssignments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  {showAssignments ? 'Hide' : 'View'}
+                </span>
               </div>
             </div>
 
-            {/* Recent Imports */}
-            <div className="lg:col-span-1 bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Recent Imports</h3>
-              <div className="space-y-3">
-                {metrics.recentImports.slice(0, 5).length > 0 ? (
-                  metrics.recentImports.slice(0, 5).map((imp) => (
-                    <div key={imp.id} className="text-sm border-l-2 border-primary pl-3">
-                      <p className="text-foreground font-medium">{imp.fileName}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {imp.rowsImported} assets imported
-                      </p>
+            {/* Serial Compliance */}
+            <div className="bg-card border border-border rounded-lg p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Serial Compliance</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{serialCompliance}%</p>
+                </div>
+                <div className="p-2.5 bg-purple-500/10 rounded-lg">
+                  <ClipboardCheck className="w-5 h-5 text-purple-400" />
+                </div>
+              </div>
+              <p className="text-xs text-amber-400 mt-2">
+                {missingSerial} records missing serial numbers
+              </p>
+            </div>
+
+            {/* Lifecycle Risk */}
+            <div className="bg-card border border-border rounded-lg p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Lifecycle Risk</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">0</p>
+                </div>
+                <div className="p-2.5 bg-red-500/10 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-red-400" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Retired or end-of-life equipment to replace</p>
+            </div>
+          </div>
+
+          {/* ✅ Assigned Devices Expanded List */}
+          {showAssignments && (
+            <div className="bg-card border border-border rounded-lg overflow-hidden animate-in slide-in-from-top-2 duration-200">
+              <div className="p-4 border-b border-border bg-secondary/20">
+                <h3 className="text-lg font-semibold text-foreground">Assigned Devices by Person</h3>
+                <p className="text-sm text-muted-foreground">
+                  {assignedCount} devices assigned to {Object.keys(assignmentsByPerson).length} people
+                </p>
+              </div>
+
+              <div className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
+                {Object.keys(assignmentsByPerson).length > 0 ? (
+                  Object.entries(assignmentsByPerson).map(([person, devices]) => (
+                    <div key={person} className="border border-border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="p-1.5 bg-primary/10 rounded-full">
+                            <Users className="w-4 h-4 text-primary" />
+                          </div>
+                          <h4 className="font-semibold text-foreground">{person}</h4>
+                        </div>
+                        <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium text-foreground">
+                          {devices.length} device{devices.length > 1 ? 's' : ''}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {devices.map(device => (
+                          <div
+                            key={device.id}
+                            className="flex items-center justify-between bg-secondary/20 rounded-lg px-3 py-2"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="font-mono text-xs text-primary font-medium">
+                                {device.assetTag}
+                              </span>
+                              <span className="text-foreground text-sm">{device.name}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-muted-foreground">{device.location}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
+                                device.status === 'active' ? 'bg-emerald-500/20 text-emerald-300' :
+                                device.status === 'maintenance' ? 'bg-amber-500/20 text-amber-300' :
+                                device.status === 'retired' ? 'bg-red-500/20 text-red-300' :
+                                'bg-gray-500/20 text-gray-300'
+                              }`}>
+                                {device.status}
+                              </span>
+                              <Link
+                                href={`/assets/${device.id}`}
+                                className="text-primary hover:underline text-xs"
+                              >
+                                View
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-muted-foreground text-sm">No imports yet</p>
+                  <p className="text-center text-muted-foreground py-8">
+                    No devices are currently assigned to anyone
+                  </p>
                 )}
               </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">ERP Data Quality</h3>
-              <div className="space-y-4">
-                <QualityBar label="Tagged assets" value={metrics.totalAssets - metrics.missingTags} total={metrics.totalAssets} />
-                <QualityBar label="Serial numbers" value={metrics.totalAssets - metrics.missingSerials} total={metrics.totalAssets} />
-                <QualityBar label="Assigned custodians" value={assignedAssets} total={metrics.totalAssets} />
-              </div>
-            </div>
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Value by Category</h3>
-              <div className="space-y-3">
-                {Object.entries(metrics.valueByCategory).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([category, value]) => (
-                  <div key={category} className="flex items-center justify-between gap-4">
-                    <span className="text-muted-foreground capitalize">{category}</span>
-                    <span className="font-semibold text-foreground">KES {value.toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Upcoming Maintenance */}
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Upcoming Maintenance</h3>
-            {metrics.upcomingMaintenance.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Type</th>
-                      <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Scheduled Date</th>
-                      <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Technician</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {metrics.upcomingMaintenance.map((maint) => (
-                      <tr key={maint.id} className="border-b border-border hover:bg-secondary">
-                        <td className="py-3 px-4">
-                          <span className="capitalize text-foreground font-medium">{maint.type}</span>
-                        </td>
-                        <td className="py-3 px-4 text-foreground">{maint.nextScheduled}</td>
-                        <td className="py-3 px-4 text-muted-foreground">{maint.technician}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="text-muted-foreground">No upcoming maintenance scheduled</p>
-            )}
-          </div>
-
-          {/* Quick Actions */}
-          <div className="flex gap-4">
-            <Link
-              href="/assets"
-              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 rounded-lg transition-colors text-center"
-            >
-              View All Assets
-            </Link>
-            <Link
-              href="/import"
-              className="flex-1 bg-secondary hover:bg-secondary/80 text-foreground font-medium py-3 rounded-lg transition-colors text-center"
-            >
-              Import Assets
-            </Link>
-          </div>
+          )}
         </div>
       </main>
-    </div>
-  );
-}
-
-function MetricCard({
-  label,
-  value,
-  icon,
-  trend,
-  color,
-}: {
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  trend: string;
-  color: string;
-}) {
-  return (
-    <div className={`bg-gradient-to-br ${color} rounded-lg p-6 text-white`}>
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <p className="text-sm font-medium opacity-90">{label}</p>
-          <p className="text-3xl font-bold mt-1">{value}</p>
-        </div>
-        <div className="opacity-80">{icon}</div>
-      </div>
-      <p className="text-xs opacity-75">{trend}</p>
-    </div>
-  );
-}
-
-
-function InsightCard({ icon, label, value, detail }: { icon: React.ReactNode; label: string; value: string; detail: string }) {
-  return (
-    <div className="bg-card border border-border rounded-lg p-5">
-      <div className="flex items-center gap-2 text-primary mb-3">{icon}<span className="text-sm font-semibold">{label}</span></div>
-      <p className="text-2xl font-bold text-foreground">{value}</p>
-      <p className="text-xs text-muted-foreground mt-1">{detail}</p>
-    </div>
-  );
-}
-
-function QualityBar({ label, value, total }: { label: string; value: number; total: number }) {
-  const percent = total ? Math.round((value / total) * 100) : 0;
-  return (
-    <div>
-      <div className="flex items-center justify-between text-sm mb-1"><span className="text-muted-foreground">{label}</span><span className="font-semibold text-foreground">{percent}%</span></div>
-      <div className="h-2 rounded-full bg-secondary overflow-hidden"><div className="h-full bg-primary" style={{ width: `${percent}%` }} /></div>
     </div>
   );
 }

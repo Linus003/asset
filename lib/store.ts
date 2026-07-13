@@ -109,6 +109,7 @@ export function initializeStore() {
       }
     }
   }
+
   // Demo users
   users = [
     { id: '1', name: 'Admin User', email: 'admin@kemu.ac.ke', role: 'admin' },
@@ -118,7 +119,7 @@ export function initializeStore() {
 
   currentUser = users[0]; // Default to admin
 
-  // Demo assets
+  // Demo assets with assignedTo
   assets = [
     {
       id: 'asset-1',
@@ -134,6 +135,7 @@ export function initializeStore() {
       warranty: '2025-06-15',
       lastModified: new Date().toISOString(),
       createdBy: 'admin@kemu.ac.ke',
+      assignedTo: 'John Doe',
     },
     {
       id: 'asset-2',
@@ -149,6 +151,7 @@ export function initializeStore() {
       warranty: '2024-03-10',
       lastModified: new Date().toISOString(),
       createdBy: 'admin@kemu.ac.ke',
+      assignedTo: 'Jane Smith',
     },
     {
       id: 'asset-3',
@@ -164,6 +167,39 @@ export function initializeStore() {
       warranty: '2025-01-20',
       lastModified: new Date().toISOString(),
       createdBy: 'admin@kemu.ac.ke',
+      assignedTo: '',
+    },
+    {
+      id: 'asset-4',
+      assetTag: 'LAP-004',
+      name: 'Dell Latitude 5420',
+      category: 'electronics',
+      description: 'Business laptop for staff',
+      location: 'IT Department',
+      status: 'active',
+      purchaseDate: '2023-08-01',
+      purchasePrice: 2800,
+      supplier: 'Dell Technologies',
+      warranty: '2025-08-01',
+      lastModified: new Date().toISOString(),
+      createdBy: 'admin@kemu.ac.ke',
+      assignedTo: 'Mary Wanjiku',
+    },
+    {
+      id: 'asset-5',
+      assetTag: 'PRJ-005',
+      name: 'Epson Projector EB-2250U',
+      category: 'electronics',
+      description: 'Projector for lecture halls',
+      location: 'Lecture Hall B',
+      status: 'maintenance',
+      purchaseDate: '2022-11-15',
+      purchasePrice: 1200,
+      supplier: 'Epson',
+      warranty: '2024-11-15',
+      lastModified: new Date().toISOString(),
+      createdBy: 'admin@kemu.ac.ke',
+      assignedTo: 'Peter Ochieng',
     },
   ];
 
@@ -208,9 +244,16 @@ export function initializeStore() {
   void hydrateFromServer();
 }
 
-// Asset operations
+// ============================================
+// ASSET OPERATIONS
+// ============================================
+
 export function getAssets(): Asset[] {
   return [...assets];
+}
+
+export function getAssignedAssets(): Asset[] {
+  return assets.filter(a => a.assignedTo && a.assignedTo.trim() !== '');
 }
 
 export function getAssetById(id: string): Asset | undefined {
@@ -238,6 +281,14 @@ export function updateAsset(id: string, updates: Partial<Asset>): Asset {
   return asset;
 }
 
+export function assignAssetToPerson(assetId: string, personName: string): Asset {
+  return updateAsset(assetId, { assignedTo: personName });
+}
+
+export function unassignAsset(assetId: string): Asset {
+  return updateAsset(assetId, { assignedTo: '' });
+}
+
 export function deleteAsset(id: string): void {
   assets = assets.filter(a => a.id !== id);
   maintenanceRecords = maintenanceRecords.filter(m => m.assetId !== id);
@@ -259,7 +310,10 @@ export function deleteImportedFile(fileId: string): void {
   persistStore();
 }
 
-// Maintenance operations
+// ============================================
+// MAINTENANCE OPERATIONS
+// ============================================
+
 export function getMaintenanceRecords(assetId?: string): MaintenanceRecord[] {
   if (assetId) {
     return maintenanceRecords.filter(m => m.assetId === assetId);
@@ -277,7 +331,10 @@ export function addMaintenanceRecord(record: Omit<MaintenanceRecord, 'id'>): Mai
   return newRecord;
 }
 
-// Movement operations
+// ============================================
+// MOVEMENT OPERATIONS
+// ============================================
+
 export function recordMovement(movement: Omit<AssetMovement, 'id'>): AssetMovement {
   const newMovement: AssetMovement = {
     ...movement,
@@ -295,7 +352,10 @@ export function getMovements(assetId?: string): AssetMovement[] {
   return [...movements];
 }
 
-// Import history operations
+// ============================================
+// IMPORT HISTORY OPERATIONS
+// ============================================
+
 export function addImportHistory(history: Omit<ImportHistory, 'id'>): ImportHistory {
   const newHistory: ImportHistory = {
     ...history,
@@ -310,7 +370,10 @@ export function getImportHistory(): ImportHistory[] {
   return [...importHistories].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
-// User operations
+// ============================================
+// USER OPERATIONS
+// ============================================
+
 export function getCurrentUser(): User | null {
   return currentUser;
 }
@@ -332,7 +395,10 @@ export function switchUser(role: UserRole): void {
   }
 }
 
-// Dashboard metrics
+// ============================================
+// DASHBOARD METRICS
+// ============================================
+
 export function getDashboardMetrics(): DashboardMetrics {
   const assetsByCategory: Record<string, number> = {};
   const assetsByLocation: Record<string, number> = {};
@@ -365,7 +431,10 @@ export function getDashboardMetrics(): DashboardMetrics {
   };
 }
 
-// Search operations
+// ============================================
+// SEARCH OPERATIONS
+// ============================================
+
 export function searchAssets(query: string, filters?: { category?: string; location?: string; status?: string }): Asset[] {
   const lowerQuery = query.toLowerCase();
   
